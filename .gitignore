@@ -4,3 +4,4 @@ dist/
 out/
 build/
 *.log
+notes.md
