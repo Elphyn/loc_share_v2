@@ -1,0 +1,23 @@
+{
+  "name": "loc_share_v2",
+  "version": "0.0.1",
+  "description": "Electron app to share files over local network using p2p",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "./src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^38.2.2",
+    "electron-devtools-installer": "^4.0.0"
+  },
+  "dependencies": {
+    "bonjour": "^3.5.0",
+    "get-port": "^7.1.0",
+    "socket.io": "^4.8.1"
+  }
+}
