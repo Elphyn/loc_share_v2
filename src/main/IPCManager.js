@@ -1,3 +1,4 @@
+import { ipcMain } from "electron";
 import { eventBus } from "./events.js";
 import { win } from "./main.js";
 
@@ -7,8 +8,8 @@ export default class IPCManager {
   }
 
   setup() {
-    eventBus.on("backend-connected", () => {
-      win.webContents.send("server-connected");
+    eventBus.on("backend-connected", (localID) => {
+      win.webContents.send("server-connected", localID);
     });
     eventBus.on("connections-list-reset", (connections) => {
       win.webContents.send("connections-list-reset", connections);
@@ -18,6 +19,11 @@ export default class IPCManager {
     });
     eventBus.on("connections-list-removal", (id) => {
       win.webContents.send("connections-list-removal", id);
+    });
+
+    ipcMain.on("peer-connection-request", (_event, id) => {
+      console.log("[IPC] Client asked to connect to ", id);
+      eventBus.emit("peer-connection-request", id);
     });
   }
 }

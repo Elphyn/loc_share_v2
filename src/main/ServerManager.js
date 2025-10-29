@@ -69,11 +69,11 @@ export default class ServerManager {
         callback(ids);
       });
 
-      socket.on("signal", (message) => {
+      socket.on("signal", ({ from, to, data }) => {
         console.log(" Server received signal, redirecting");
-        io.to(message.to).emit("signal", {
-          from: message.from,
-          data: message.data,
+        this.io.to(to).emit("signal", {
+          from: from,
+          data: data,
         });
       });
 

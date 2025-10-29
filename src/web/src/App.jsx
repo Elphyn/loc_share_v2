@@ -1,22 +1,15 @@
-import { useIPCContext } from "./contexts/useIPCContext"
+import Sockets from "./components/Sockets";
+import { useIPCContext } from "./contexts/useIPCContext";
 
 function App() {
-
-  const { serverConnection, socketList } = useIPCContext()
-
+  const { serverConnection } = useIPCContext();
 
   return (
     <>
       <div>Server status: {serverConnection}</div>
-      <div>
-        <h1>Sockets:</h1>
-        <ul>
-          {socketList.map(id => (<li key={id}>{id}</li>))}
-        </ul>
-      </div>
+      <Sockets />
     </>
-  )
+  );
 }
 
-export default App
-
+export default App;

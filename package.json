@@ -16,8 +16,10 @@
     "electron-devtools-installer": "^4.0.0"
   },
   "dependencies": {
+    "@roamhq/wrtc": "^0.9.1",
     "bonjour": "^3.5.0",
     "get-port": "^7.1.0",
+    "simple-peer": "^9.11.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },

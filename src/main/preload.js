@@ -1,25 +1,30 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
-  sendRendererReady: () => ipcRenderer.send('renderer-ready'),
+  sendRendererReady: () => ipcRenderer.send("renderer-ready"),
 
   onConnection: (callback) => {
-    ipcRenderer.on("server-connected", callback)
-    return () => ipcRenderer.removeListener("server-connected", callback)
+    const handler = (_even, localID) => callback(localID);
+    ipcRenderer.on("server-connected", handler);
+    return () => ipcRenderer.removeListener("server-connected", handler);
   },
   onConnectionReset: (callback) => {
-    const handler = (_event, list) => callback(list)
-    ipcRenderer.on("connections-list-reset", handler)
-    return () => ipcRenderer.removeListener("connections-list-reset", handler)
+    const handler = (_event, list) => callback(list);
+    ipcRenderer.on("connections-list-reset", handler);
+    return () => ipcRenderer.removeListener("connections-list-reset", handler);
   },
   onSocketConnection: (callback) => {
-    const handler = (_event, id) => callback(id)
-    ipcRenderer.on("connections-list-connection", handler)
-    return () => ipcRenderer.removeListener("connections-list-connection", handler)
+    const handler = (_event, id) => callback(id);
+    ipcRenderer.on("connections-list-connection", handler);
+    return () =>
+      ipcRenderer.removeListener("connections-list-connection", handler);
   },
   onSocketDisconnection: (callback) => {
-    const handler = (_event, id) => callback(id)
-    ipcRenderer.on("connections-list-removal", handler)
-    return () => ipcRenderer.removeListener("connections-list-removal", handler)
-  }
-})
+    const handler = (_event, id) => callback(id);
+    ipcRenderer.on("connections-list-removal", handler);
+    return () =>
+      ipcRenderer.removeListener("connections-list-removal", handler);
+  },
+
+  onClickConnect: (id) => ipcRenderer.send("peer-connection-request", id),
+});

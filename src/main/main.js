@@ -8,12 +8,14 @@ import SocketManager from "./SocketManager.js";
 import IPCManager from "./IPCManager.js";
 import * as readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import PeerManager from "./PeerManager.js";
 
 export let win;
 let serviceManager;
 let serverManager;
 let socketManager;
 let ipcManager;
+let peerManager;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,7 +37,7 @@ const createWindow = () => {
 
   if (isDev) {
     win.loadURL("http://localhost:5173/");
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, "web/dist/index.html"));
   }
@@ -52,7 +54,9 @@ ipcMain.once("renderer-ready", async () => {
   serverManager = new ServerManager();
   socketManager = new SocketManager();
   ipcManager = new IPCManager();
+  peerManager = new PeerManager();
 
+  // debug
   const rl = readline.createInterface({
     input,
     output,
