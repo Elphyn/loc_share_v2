@@ -11,7 +11,7 @@ function App() {
       <div>
         <h1>Sockets:</h1>
         <ul>
-          {socketList.map(id => (<li key="id">{id}</li>))}
+          {socketList.map(id => (<li key={id}>{id}</li>))}
         </ul>
       </div>
     </>
