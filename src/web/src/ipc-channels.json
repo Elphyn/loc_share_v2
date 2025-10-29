@@ -1,0 +1,7 @@
+{
+  "GET_INITIAL_STATE": "get-initial-state",
+  "SERVER_CONNECTED": "server-connected",
+  "CONNECTION_LIST_RESET": "connections-list-reset",
+  "CONNECTION_LIST_CONNECTION": "connections-list-connection",
+  "CONNECTION_LIST_REMOVAL": "connections-list-removal"
+}

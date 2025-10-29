@@ -7,10 +7,16 @@ window.process = process
 window.global = window
 
 import { createRoot } from 'react-dom/client'
+import './index.css'
+import './globals.css'
 import App from './App.jsx'
+import { IPCProvider } from './contexts/useIPCContext.jsx'
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <IPCProvider>
+      <App />
+    </IPCProvider>
   </StrictMode>,
 )

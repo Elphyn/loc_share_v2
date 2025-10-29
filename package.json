@@ -18,6 +18,16 @@
   "dependencies": {
     "bonjour": "^3.5.0",
     "get-port": "^7.1.0",
-    "socket.io": "^4.8.1"
-  }
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elphyn/loc_share_v2.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/Elphyn/loc_share_v2/issues"
+  },
+  "homepage": "https://github.com/Elphyn/loc_share_v2#readme"
 }

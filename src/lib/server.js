@@ -2,13 +2,11 @@ import { Server } from 'socket.io';
 import { createServer } from 'node:http'
 import { publishServer } from './discovery.js';
 import getPort, { portNumbers } from 'get-port';
-import EventEmitter from "node:events"
 
 let io = null
 let server = null
 let connections = new Set()
 
-export const serverEvents = new EventEmitter()
 
 export function startServer() {
   return new Promise(async (resolve) => {

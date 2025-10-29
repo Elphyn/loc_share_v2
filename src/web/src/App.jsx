@@ -1,19 +1,20 @@
-import { Indicator } from "./components/indicator"
-import { SocketList } from "./components/socketList"
-import { SocketProvider } from "./contexts/useSocketContext"
-import { WrtcProvider } from "./contexts/useWRTCContext"
+import { useIPCContext } from "./contexts/useIPCContext"
 
 function App() {
 
+  const { serverConnection, socketList } = useIPCContext()
+
+
   return (
-    <SocketProvider>
-      <WrtcProvider>
-        <div>
-          <Indicator />
-          <SocketList />
-        </div>
-      </WrtcProvider>
-    </SocketProvider>
+    <>
+      <div>Server status: {serverConnection}</div>
+      <div>
+        <h1>Sockets:</h1>
+        <ul>
+          {socketList.map(id => (<li key="id">{id}</li>))}
+        </ul>
+      </div>
+    </>
   )
 }
 

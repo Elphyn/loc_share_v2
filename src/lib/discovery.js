@@ -1,22 +1,9 @@
 import bonjour from "bonjour"
-import { serverEvents } from "./server.js"
 
 const bonjourInst = bonjour()
 
-export function browse() {
-  const browser = bonjourInst.find({ type: 'http' })
-
-  browser.on('up', (service) => {
-    if (!service.name.startsWith("loc-share-signaling-server")) return
-
-    console.log("Found a server")
-    serverEvents.emit("found-server", service)
-  })
-}
-
 export function findServerService() {
   const browser = bonjourInst.find({ type: 'http' })
-
 
   let onUp
 
@@ -40,7 +27,7 @@ export function findServerService() {
 
 export function publishServer(port) {
   let myServiceID = crypto.randomUUID()
-  let serverPublishTime = new Date().toISOString()
+  let serverPublishTime = new Date()
   bonjourInst.publish(
     {
       name: `loc-share-signaling-server-${myServiceID}`,
@@ -48,10 +35,10 @@ export function publishServer(port) {
       port: port,
       txt: {
         id: myServiceID,
-        time: serverPublishTime,
+        time: serverPublishTime.toISOString(),
       }
     })
-  return [myServiceID, serverPublishTime, port]
+  return [myServiceID, serverPublishTime]
 }
 
 export function unplublish() {
