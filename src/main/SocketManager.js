@@ -20,11 +20,12 @@ export default class SocketManager {
       this.connect(`http://${service.addresses[0]}:${service.port}`);
     });
 
-    eventBus.on("signal-redirect", ({ to, data }) => {
+    eventBus.on("signal-redirect", ({ to, data, type }) => {
       if (!this.socket || !this.connectionState)
         throw new Error("No socket or no connection on signal-redirect");
       this.socket.emit("signal", {
         from: this.socket.id,
+        type,
         to,
         data,
       });
@@ -68,9 +69,9 @@ export default class SocketManager {
     const onDisconnectedSocket = (id) => {
       this.removeFromList(id);
     };
-    const onSignal = ({ from, _to, data }) => {
+    const onSignal = ({ from, data, type }) => {
       console.log("Received signal from: ", from);
-      eventBus.emit("peer-connection-offer", { from, data });
+      eventBus.emit("peer-connection-offer", { from, data, type });
     };
 
     this.socket.on("connect", onConnect);

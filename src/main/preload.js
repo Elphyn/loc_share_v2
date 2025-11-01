@@ -1,5 +1,4 @@
-const { contextBridge, ipcRenderer } = require("electron");
-
+const { contextBridge, ipcRenderer, webUtils } = require("electron");
 contextBridge.exposeInMainWorld("electronAPI", {
   sendRendererReady: () => ipcRenderer.send("renderer-ready"),
 
@@ -25,6 +24,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return () =>
       ipcRenderer.removeListener("connections-list-removal", handler);
   },
-
+  sendFile: (file) => {
+    const filePath = webUtils.getPathForFile(file);
+    ipcRenderer.send("peer-file-request", {
+      path: filePath,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+  },
   onClickConnect: (id) => ipcRenderer.send("peer-connection-request", id),
 });

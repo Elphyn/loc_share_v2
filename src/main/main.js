@@ -6,8 +6,6 @@ import ServerManager from "./ServerManager.js";
 import ServiceManager from "./ServiceManager.js";
 import SocketManager from "./SocketManager.js";
 import IPCManager from "./IPCManager.js";
-import * as readline from "node:readline/promises";
-import { stdin as input, stdout as output } from "node:process";
 import PeerManager from "./PeerManager.js";
 
 export let win;
@@ -55,26 +53,4 @@ ipcMain.once("renderer-ready", async () => {
   socketManager = new SocketManager();
   ipcManager = new IPCManager();
   peerManager = new PeerManager();
-
-  // debug
-  const rl = readline.createInterface({
-    input,
-    output,
-    prompt: "> ",
-  });
-
-  while (true) {
-    const input = await rl.question(">");
-
-    if (input === "connections") {
-      const connections = serverManager.getConnections();
-
-      console.log("You asked for connections: ");
-      connections.forEach((socket) => {
-        console.log(socket.id);
-      });
-      return;
-    }
-    console.log("Wrong command: ", prompt);
-  }
 });

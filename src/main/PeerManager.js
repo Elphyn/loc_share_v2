@@ -1,11 +1,15 @@
-import SimplePeer from "simple-peer";
 import { eventBus } from "./events.js";
-import wrtc from "@roamhq/wrtc";
+import { createReadStream } from "fs";
+import nodeDataChannel from "node-datachannel";
+
+nodeDataChannel.initLogger("Error");
 
 export default class PeerManager {
   constructor() {
     this.setup();
     this.peer = null;
+    this.channel = null;
+    this.connection = "Disconnected";
   }
 
   setup() {
@@ -13,47 +17,106 @@ export default class PeerManager {
       this.connect(socketID);
     });
 
-    eventBus.on("peer-connection-offer", ({ from, data }) => {
+    eventBus.on("peer-connection-offer", ({ from, data, type }) => {
+      console.log(`[PEER RECEIVER] type: ${type}`);
+      console.log("[PEER RECEIVER] data: ", data);
       if (!this.peer) {
-        this.peer = new SimplePeer({ initiator: false, wrtc });
+        this.peer = new nodeDataChannel.PeerConnection("pc", {
+          iceServers: [],
+        });
 
-        this.peer.on("signal", (offer) => {
+        this.peer.onStateChange((state) => {
+          console.log("[PEER] State: ", state);
+          this.connection = state;
+        });
+
+        this.peer.onLocalDescription((description, type) => {
+          console.log("[PEER] Generated local description");
           eventBus.emit("signal-redirect", {
             to: from,
-            data: offer,
+            type: type,
+            data: description,
           });
         });
 
-        this.peer.on("connect", () => {
-          console.log("[PEER] P2P Connected!");
+        this.peer.onLocalCandidate((candidate, mid) => {
+          console.log("[PEER] Generated candidate");
+          eventBus.emit("signal-redirect", {
+            to: from,
+            type: "ice",
+            data: { candidate, mid },
+          });
+        });
+
+        this.peer.onDataChannel((dc) => {
+          console.log(`[PEER RECEIVER] Datachannel is created by`);
+          this.channel = dc;
+
+          this.channel.onMessage((msg) => {
+            console.log("[PEER] Received: ", msg);
+          });
         });
       }
+      switch (type) {
+        case "offer":
+          this.peer.setRemoteDescription(data, type);
+          break;
+        case "answer":
+          this.peer.setRemoteDescription(data, type);
+          break;
+        case "ice":
+          this.peer.addRemoteCandidate(data.candidate, data.mid);
+          break;
+      }
+    });
 
-      this.peer.signal(data);
+    eventBus.on("peer-file-request", (file) => {
+      const stream = createReadStream(file.path);
+
+      stream.on("data", (data) => {
+        console.log("[FILE] Sending binary: ", data);
+        this.channel.sendMessageBinary(data);
+      });
     });
   }
 
   connect(socketID) {
-    if (this.peer)
-      throw new Error(
-        "Attempted to connect while already having peer connection",
-      );
-
-    console.log("[PEER] Creating peer");
-    this.peer = new SimplePeer({
-      initiator: true,
-      wrtc,
+    console.log("[PEER] connect triggered");
+    this.peer = new nodeDataChannel.PeerConnection("pc", {
+      iceServers: [],
     });
 
-    this.peer.on("signal", (offer) => {
+    this.peer.onStateChange((state) => {
+      console.log("[PEER] State: ", state);
+      this.connection = state;
+    });
+
+    this.peer.onLocalDescription((description, type) => {
+      console.log("[PEER] Generated local description");
       eventBus.emit("signal-redirect", {
         to: socketID,
-        data: offer,
+        type: type,
+        data: description,
       });
     });
 
-    this.peer.on("connect", () => {
-      console.log("[PEER] P2P Connected!");
+    this.peer.onLocalCandidate((candidate, mid) => {
+      console.log("[PEER] Generated candidate");
+      eventBus.emit("signal-redirect", {
+        to: socketID,
+        type: "ice",
+        data: { candidate, mid },
+      });
+    });
+
+    this.channel = this.peer.createDataChannel("test");
+
+    this.channel.onOpen(() => {
+      console.log("[PEER] dc channel is open");
+      this.channel.sendMessage("[PEER] message on opening channel");
+      this.channel.onMessage((msg) => {
+        console.log("[PEER MESSAGE] ", msg);
+      });
     });
   }
 }

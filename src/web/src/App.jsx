@@ -1,4 +1,6 @@
 import Sockets from "./components/Sockets";
+import DropZone from "./components/DropZone";
+import FileList from "./components/FileList";
 import { useIPCContext } from "./contexts/useIPCContext";
 
 function App() {
@@ -8,6 +10,8 @@ function App() {
     <>
       <div>Server status: {serverConnection}</div>
       <Sockets />
+      <DropZone />
+      <FileList />
     </>
   );
 }
