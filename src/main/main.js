@@ -52,5 +52,5 @@ ipcMain.once("renderer-ready", async () => {
   serverManager = new ServerManager();
   socketManager = new SocketManager();
   ipcManager = new IPCManager();
-  peerManager = new PeerManager();
+  peerManager = new PeerManager(socketManager);
 });

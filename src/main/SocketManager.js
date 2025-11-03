@@ -1,8 +1,10 @@
 import { io } from "socket.io-client";
 import { eventBus } from "./events.js";
+import EventEmitter from "node:events";
 
-export default class SocketManager {
+export default class SocketManager extends EventEmitter {
   constructor() {
+    super();
     this.socket = null;
     this.currentServiceId = null;
     this.io = null;
@@ -24,7 +26,6 @@ export default class SocketManager {
       if (!this.socket || !this.connectionState)
         throw new Error("No socket or no connection on signal-redirect");
       this.socket.emit("signal", {
-        from: this.socket.id,
         type,
         to,
         data,
@@ -36,6 +37,10 @@ export default class SocketManager {
 
   startSearch() {
     eventBus.emit("no-service-active");
+  }
+
+  send(event, data) {
+    this.socket.emit(event, data);
   }
 
   disconnect() {
@@ -69,9 +74,9 @@ export default class SocketManager {
     const onDisconnectedSocket = (id) => {
       this.removeFromList(id);
     };
-    const onSignal = ({ from, data, type }) => {
-      console.log("Received signal from: ", from);
-      eventBus.emit("peer-connection-offer", { from, data, type });
+
+    const onSignal = (signal) => {
+      this.emit("signal", signal);
     };
 
     this.socket.on("connect", onConnect);

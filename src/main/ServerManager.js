@@ -69,13 +69,10 @@ export default class ServerManager {
         callback(ids);
       });
 
-      socket.on("signal", ({ from, to, data, type }) => {
+      socket.on("signal", (message) => {
         console.log(" Server received signal, redirecting");
-        this.io.to(to).emit("signal", {
-          from,
-          type,
-          data,
-        });
+        message.from = socket.id;
+        this.io.to(message.to).emit("signal", message);
       });
 
       socket.on("disconnect", () => {
