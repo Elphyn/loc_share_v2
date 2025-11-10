@@ -1,44 +1,26 @@
 import { useEffect, useState } from "react";
 
 export function useIPC() {
-  const [localID, setLocalID] = useState(null);
-  const [serverConnection, setServerConnection] = useState("Disconnected");
-  const [socketList, setSocketList] = useState([]);
+  const [devices, setDevices] = useState([]);
 
   useEffect(() => {
-    const unsubConnected = window.electronAPI.onConnection((localID) => {
-      console.log("Server is connected");
-      setLocalID(localID);
-      setServerConnection("Connected");
+    const unsubNearbyDeviceOn = window.electronAPI.nearbyDeviceOn((device) => {
+      setDevices((prev) => [...prev, device]);
     });
-    const unsubListReset = window.electronAPI.onConnectionReset((list) => {
-      console.log("Resetting a list");
-      setSocketList(list);
+    const unsubNearbyDeviceOff = window.electronAPI.nearbyDeviceOff((id) => {
+      setDevices((prev) => prev.filter(device.id !== id));
     });
-    const unsubSocketConnection = window.electronAPI.onSocketConnection(
-      (id) => {
-        console.log("New addition: ", id);
-        setSocketList((prev) => (prev.includes(id) ? prev : [...prev, id]));
-      },
-    );
-    const unsubOnSocketDisconnection = window.electronAPI.onSocketDisconnection(
-      (id) => {
-        console.log("Removing id: ", id);
-        setSocketList((prev) => prev.filter((socket) => socket !== id));
-      },
-    );
+
     window.electronAPI.sendRendererReady();
     return () => {
-      unsubConnected();
-      unsubListReset();
-      unsubSocketConnection();
-      unsubOnSocketDisconnection();
+      unsubNearbyDeviceOff();
+      unsubNearbyDeviceOn();
     };
   }, []);
 
   useEffect(() => {
-    console.log(socketList);
-  }, [socketList]);
+    console.log(devices);
+  }, [devices]);
 
-  return { serverConnection, socketList, localID };
+  return { devices };
 }
