@@ -2,18 +2,15 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import ServerManager from "./ServerManager.js";
-import ServiceManager from "./ServiceManager.js";
-import SocketManager from "./SocketManager.js";
 import IPCManager from "./IPCManager.js";
-import PeerManager from "./PeerManager.js";
+import Controller from "./Controller.js";
+import InstanceDiscoveryService from "./Services.js";
 
 export let win;
-let serviceManager;
-let serverManager;
-let socketManager;
+export let instanceDiscoveryService;
+
 let ipcManager;
-let peerManager;
+let controller;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,9 +45,15 @@ app.whenReady().then(() => {
 });
 
 ipcMain.once("renderer-ready", async () => {
-  serviceManager = new ServiceManager();
-  serverManager = new ServerManager();
-  socketManager = new SocketManager();
+  instanceDiscoveryService = new InstanceDiscoveryService();
+  controller = new Controller();
+
   ipcManager = new IPCManager();
-  peerManager = new PeerManager(socketManager);
+});
+
+app.on("before-quit", async (event) => {
+  console.log("[ELECTRON] Running cleanup before exit");
+  event.preventDefault();
+  await controller.cleanup();
+  app.exit(0);
 });
