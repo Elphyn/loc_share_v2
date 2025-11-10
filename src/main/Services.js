@@ -58,17 +58,55 @@ export default class InstanceDiscoveryService {
   }
 }
 
+export class MessageParser extends EventEmitter {
+  constructor() {
+    super();
+    this.buffer = Buffer.alloc(0);
+    this.expectedLength = null;
+  }
+
+  feed(chunk) {
+    this.buffer = Buffer.concat([this.buffer, chunk]);
+
+    while (true) {
+      if (!this.expectedLength) {
+        if (this.buffer.length < 4) break;
+        this.expectedLength = this.buffer.readUInt32BE(0);
+        this.buffer = this.buffer.subarray(4);
+      }
+
+      if (this.expectedLength > this.buffer.length) break;
+
+      const messageType = this.buffer.readUInt8(0);
+      const payload = this.buffer.subarray(1, this.expectedLength);
+
+      this.emit("message", { type: messageType, payload });
+
+      this.buffer = this.buffer.subarray(this.expectedLength);
+      this.expectedLength = null;
+    }
+  }
+}
+
 class ServerManager extends EventEmitter {
   constructor() {
     super();
     this.server = null;
     this.port = null;
+    this.messageParser = new MessageParser();
+    this.setupParser();
+  }
+
+  setupParser() {
+    this.messageParser.on("message", (message) => {
+      this.emit("message", message);
+    });
   }
 
   async createServer() {
     this.server = net.createServer((socket) => {
       socket.on("data", (data) => {
-        this.emit("data", data);
+        this.messageParser.feed(data);
       });
     });
 

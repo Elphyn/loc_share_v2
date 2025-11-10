@@ -22,10 +22,6 @@ export default class Controller {
       console.log("[Tranfer] Tranfer failed, err:", err);
     }
   }
-
-  async cleanup() {
-    await instanceDiscoveryService.cleanup();
-  }
 }
 
 class Tranfer {
@@ -34,5 +30,11 @@ class Tranfer {
 
     console.log("[Tranfer] Sending hello to socket");
     channel.send("Hello");
+  }
+}
+
+class TranferService extends EventEmitter {
+  constructor() {
+    super();
   }
 }

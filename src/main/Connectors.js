@@ -26,3 +26,10 @@ export class TcpConnector {
     });
   }
 }
+
+export class WrtcConnector {
+  static negotiate() {}
+  static connect(id) {
+    const { ip, port } = instanceDiscoveryService.getConnectionInfo(id);
+  }
+}
