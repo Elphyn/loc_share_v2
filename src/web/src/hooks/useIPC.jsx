@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useIPC() {
   const [devices, setDevices] = useState([]);
@@ -22,5 +22,9 @@ export function useIPC() {
     console.log(devices);
   }, [devices]);
 
-  return { devices };
+  const notifyTranferRequest = useCallback((id, files) => {
+    window.electronAPI.tranferRequest(id, files);
+  }, []);
+
+  return { devices, notifyTranferRequest };
 }

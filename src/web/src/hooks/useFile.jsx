@@ -1,16 +1,20 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import { useIPCContext } from "../contexts/useIPCContext";
 
 export function useFile() {
   const [files, setFiles] = useState([]);
-  const nextIdRef = useRef(0);
+  const { notifyTranferRequest } = useIPCContext();
 
-  const sendFile = useCallback((file) => {
-    console.log("[USE_FILE] Received: ", file);
-    const name = file.name;
-    setFiles((prev) => [...prev, { id: nextIdRef.current, name }]);
-    nextIdRef.current++;
-    window.electronAPI.sendFile(file);
-  }, []);
+  const startTranfer = useCallback(
+    (id) => {
+      notifyTranferRequest(id, files);
+    },
+    [files],
+  );
 
-  return { files, sendFile };
+  const addFile = useCallback((file) => {
+    setFiles((prev) => [...prev, file]);
+  });
+
+  return { files, startTranfer, addFile };
 }

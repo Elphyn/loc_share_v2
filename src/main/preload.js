@@ -12,14 +12,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("nearby-device-lost", handler);
     return () => ipcRenderer.removeListener("nearby-device-lost", handler);
   },
-  // sendFile: (file) => {
-  //   const filePath = webUtils.getPathForFile(file);
-  //   ipcRenderer.send("peer-file-request", {
-  //     path: filePath,
-  //     name: file.name,
-  //     type: file.type,
-  //     size: file.size,
-  //   });
-  // },
-  onClickConnect: (id) => ipcRenderer.send("peer-connection-request", id),
+  tranferRequest: (id, files) => {
+    // need to add filepath, renderer can't do it by itself
+    files = files.map((file) => ({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      path: webUtils.getPathForFile(file),
+    }));
+    ipcRenderer.send("tranfer-request", { id, files });
+  },
 });

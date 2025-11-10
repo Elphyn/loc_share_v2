@@ -47,13 +47,12 @@ app.whenReady().then(() => {
 ipcMain.once("renderer-ready", async () => {
   instanceDiscoveryService = new InstanceDiscoveryService();
   controller = new Controller();
-
   ipcManager = new IPCManager();
 });
 
 app.on("before-quit", async (event) => {
   console.log("[ELECTRON] Running cleanup before exit");
   event.preventDefault();
-  await controller.cleanup();
+  await instanceDiscoveryService.cleanup();
   app.exit(0);
 });

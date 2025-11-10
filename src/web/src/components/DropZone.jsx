@@ -2,14 +2,14 @@ import { useCallback } from "react";
 import { useFileContext } from "../contexts/useFileContext";
 
 export default function DropZone() {
-  const { sendFile } = useFileContext();
+  const { addFile } = useFileContext();
 
   const handleDrop = useCallback(
     (e) => {
       e.preventDefault();
-      sendFile(e.dataTransfer.files[0]);
+      addFile(e.dataTransfer.files[0]);
     },
-    [sendFile],
+    [addFile],
   );
 
   const handleDrag = (e) => {
@@ -20,7 +20,7 @@ export default function DropZone() {
     <div
       onDragOver={handleDrag}
       onDrop={handleDrop}
-      className="border-2 border-dashed text-center h-32"
+      className="border-2 border-dashed text-center h-32 m-5"
     >
       Drop File here
     </div>
