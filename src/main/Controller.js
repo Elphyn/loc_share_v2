@@ -1,6 +1,5 @@
 import { TcpConnector } from "./Connectors.js";
 import { ipcBus } from "./events.js";
-import { instanceDiscoveryService } from "./main.js";
 import { headers } from "./headers.js";
 import { createReadStream } from "fs";
 import EventEmitter from "events";

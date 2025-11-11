@@ -58,12 +58,12 @@ export default class InstanceDiscoveryService {
   }
 }
 
+// TODO: [Improvement] could use allocUnsafe, to have one buffer, no need to create new ones
 export class MessageParser extends EventEmitter {
   constructor() {
     super();
     this.buffer = Buffer.alloc(0);
     this.expectedLength = null;
-    console.log("[PARSER] created");
   }
 
   feed(chunk) {
