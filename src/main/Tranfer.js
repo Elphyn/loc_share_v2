@@ -18,6 +18,6 @@ export class Tranfer {
     const channel = await connector.connect(id);
 
     // notify start of the tranfer
-    channel.send();
+    channel.send(head);
   }
 }
