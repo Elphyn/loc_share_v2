@@ -19,11 +19,9 @@ export default class IPCManager {
       console.log("[IPC] Client asked to connect to ", id);
       ipcBus.emit("peer-connection-request", id);
     });
-    ipcMain.on("tranfer-request", (_event, { id, files }) => {
-      console.log("[IPC] Asked for a tranfer to ", id);
-      files.forEach((file) => {
-        console.log("[IPC] File: ", file);
-      });
+    ipcMain.on("tranfer-request", (_event, req) => {
+      console.log("[IPC] Asked for a tranfer to ", req.id);
+      ipcBus.emit("tranfer-request", req);
     });
   }
 }

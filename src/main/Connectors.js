@@ -2,6 +2,23 @@ import net from "net";
 import { instanceDiscoveryService } from "./main.js";
 
 export class TcpConnector {
+  constructor(socket) {
+    this.socket = socket;
+  }
+
+  async send(data) {
+    return new Promise((resolve, reject) => {
+      const ok = this.socket.write(data, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+
+      if (!ok) {
+        this.socket.on("drain", resolve);
+      }
+    });
+  }
+
   static connect(id) {
     const { ip, port } = instanceDiscoveryService.getConnectionInfo(id);
     return new Promise((resolve, reject) => {
@@ -13,11 +30,7 @@ export class TcpConnector {
 
       socket.on("connect", () => {
         console.log("[CONNECTOR] Connected");
-        resolve({
-          send: (data) => socket.write(data),
-          disconnect: () => socket.close(),
-          // buffer size as well, for backpressure
-        });
+        resolve(new TcpConnector(socket));
       });
 
       socket.on("error", () => {
@@ -27,9 +40,9 @@ export class TcpConnector {
   }
 }
 
-export class WrtcConnector {
-  static negotiate() {}
-  static connect(id) {
-    const { ip, port } = instanceDiscoveryService.getConnectionInfo(id);
-  }
-}
+// export class WrtcConnector {
+//   static negotiate() {}
+//   static connect(id) {
+//     const { ip, port } = instanceDiscoveryService.getConnectionInfo(id);
+//   }
+// }

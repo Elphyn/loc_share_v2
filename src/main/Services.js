@@ -63,6 +63,7 @@ export class MessageParser extends EventEmitter {
     super();
     this.buffer = Buffer.alloc(0);
     this.expectedLength = null;
+    console.log("[PARSER] created");
   }
 
   feed(chunk) {
@@ -99,6 +100,7 @@ class ServerManager extends EventEmitter {
 
   setupParser() {
     this.messageParser.on("message", (message) => {
+      console.log("[PARSER] got message: ", message);
       this.emit("message", message);
     });
   }
