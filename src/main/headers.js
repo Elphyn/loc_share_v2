@@ -6,3 +6,5 @@ export const headers = {
   finish: 4,
   finishTranfer: 5,
 };
+
+export const includesPayload = new Set([2, 3]);

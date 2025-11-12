@@ -3,6 +3,7 @@ import EventEmitter from "node:events";
 import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "./events.js";
+import MessageParser from "./MessageParser.js";
 
 export default class InstanceDiscoveryService {
   constructor() {
@@ -55,37 +56,6 @@ export default class InstanceDiscoveryService {
 
   handleData(data) {
     console.log("Received data: ", data);
-  }
-}
-
-// TODO: [Improvement] could use allocUnsafe, to have one buffer, no need to create new ones
-export class MessageParser extends EventEmitter {
-  constructor() {
-    super();
-    this.buffer = Buffer.alloc(0);
-    this.expectedLength = null;
-  }
-
-  feed(chunk) {
-    this.buffer = Buffer.concat([this.buffer, chunk]);
-
-    while (true) {
-      if (!this.expectedLength) {
-        if (this.buffer.length < 4) break;
-        this.expectedLength = this.buffer.readUInt32BE(0);
-        this.buffer = this.buffer.subarray(4);
-      }
-
-      if (this.expectedLength > this.buffer.length) break;
-
-      const messageType = this.buffer.readUInt8(0);
-      const payload = this.buffer.subarray(1, this.expectedLength);
-
-      this.emit("message", { type: messageType, payload });
-
-      this.buffer = this.buffer.subarray(this.expectedLength);
-      this.expectedLength = null;
-    }
   }
 }
 

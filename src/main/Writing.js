@@ -1,4 +1,4 @@
-import { Tranfer } from "./Controller.js";
+import Tranfer from "./Tranfer.js";
 import { headers } from "./headers.js";
 import { Writable } from "stream";
 
