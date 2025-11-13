@@ -5,6 +5,6 @@ import { headers } from "./headers.js";
 const stream = createReadStream("/home/vlad/Pictures/mountain_black.jpg");
 
 stream.on("data", (data) => {
-  const message = Tranfer.makeMessage(headers.chunk, data);
+  const message = MessageParser.makeMessage(headers.chunk, data);
   console.log("Message: ", message);
 });

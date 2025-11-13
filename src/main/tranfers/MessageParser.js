@@ -8,6 +8,32 @@ export default class MessageParser extends EventEmitter {
     // this.expectedLength = null;
   }
 
+  static makeMessage(typeHeader, payload) {
+    if (!typeHeader)
+      throw new Error(
+        "[TRANSFER ERROR] no header was passed on creating of message",
+      );
+    // message without a payload
+    if (!includesPayload.has(typeHeader)) {
+      const buffer = Buffer.alloc(1);
+      buffer.writeUint8(typeHeader, 0);
+      return buffer;
+    }
+
+    if (!payload)
+      throw new Error(
+        "[TRANSFER ERROR] payload header was specified but no payload was given",
+      );
+
+    const headers = Buffer.alloc(5);
+
+    headers.writeUint8(typeHeader, 0);
+    headers.writeUInt32BE(payload.length, 1);
+
+    // TODO: [Improvement] Could use unsafe buffer, to not create a lot of new ones
+    return Buffer.concat([headers, payload]);
+  }
+
   feed(chunk) {
     this.buffer = Buffer.concat([this.buffer, chunk]);
 
@@ -26,10 +52,7 @@ export default class MessageParser extends EventEmitter {
 
       const payloadLen = this.buffer.readUInt32BE(1);
 
-      if (this.buffer.length < payloadLen + 5) {
-        console.log("[MESSAGE PARSER] not enough data yet");
-        break;
-      }
+      if (this.buffer.length < payloadLen + 5) break;
 
       const payload = this.buffer.subarray(5, payloadLen + 5);
 

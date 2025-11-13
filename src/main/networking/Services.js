@@ -2,8 +2,9 @@ import net from "net";
 import EventEmitter from "node:events";
 import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
-import { ipcBus } from "./events.js";
-import MessageParser from "./MessageParser.js";
+import { ipcBus } from "../core/events.js";
+import MessageParser from "../tranfers/MessageParser.js";
+import { messageParser } from "../core/main.js";
 
 export default class InstanceDiscoveryService {
   constructor() {
@@ -13,9 +14,13 @@ export default class InstanceDiscoveryService {
     this.setup();
   }
 
+  handleMessage(message) {
+    this.emit("server-message", message);
+  }
+
   async setup() {
     const port = await this.serverManager.createServer();
-    this.serverManager.on("data", this.handleData);
+    this.serverManager.on("message", this.handleMessage);
 
     this.discoveryManager.pubish("tcp", port);
     this.discoveryManager.browse("tcp");
@@ -53,10 +58,6 @@ export default class InstanceDiscoveryService {
     this.nearbyDevices.delete(instance.txt.id);
     ipcBus.emit("nearby-device-lost", instance.txt.id);
   }
-
-  handleData(data) {
-    console.log("Received data: ", data);
-  }
 }
 
 class ServerManager extends EventEmitter {
@@ -64,7 +65,7 @@ class ServerManager extends EventEmitter {
     super();
     this.server = null;
     this.port = null;
-    this.messageParser = new MessageParser();
+    this.messageParser = messageParser;
     this.setupParser();
   }
 

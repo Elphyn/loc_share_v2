@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "./src/main/main.js",
+  "main": "./src/main/core/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "NODE_ENV=development electron .",

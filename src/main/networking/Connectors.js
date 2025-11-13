@@ -1,5 +1,5 @@
 import net from "net";
-import { instanceDiscoveryService } from "./main.js";
+import { instanceDiscoveryService } from "../core/main.js";
 
 export class TcpConnector {
   constructor(socket) {
@@ -39,7 +39,6 @@ export class TcpConnector {
     });
   }
 }
-
 // export class WrtcConnector {
 //   static negotiate() {}
 //   static connect(id) {

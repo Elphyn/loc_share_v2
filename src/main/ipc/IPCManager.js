@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
-import { ipcBus } from "./events.js";
-import { win } from "./main.js";
+import { ipcBus } from "../core/events.js";
+import { win } from "../core/main.js";
 
 export default class IPCManager {
   constructor() {

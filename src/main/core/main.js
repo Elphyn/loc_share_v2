@@ -2,12 +2,14 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import IPCManager from "./IPCManager.js";
-import Controller from "./Controller.js";
-import InstanceDiscoveryService from "./Services.js";
+import IPCManager from "../ipc/IPCManager.js";
+import Controller from "../tranfers/Controller.js";
+import InstanceDiscoveryService from "../networking/Services.js";
+import MessageParser from "../tranfers/MessageParser.js";
 
 export let win;
 export let instanceDiscoveryService;
+export let messageParser;
 
 let ipcManager;
 let controller;
@@ -22,7 +24,7 @@ const createWindow = () => {
     resizable: true,
     maximizable: false,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../ipc/preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -45,6 +47,7 @@ app.whenReady().then(() => {
 });
 
 ipcMain.once("renderer-ready", async () => {
+  messageParser = new MessageParser();
   instanceDiscoveryService = new InstanceDiscoveryService();
   controller = new Controller();
   ipcManager = new IPCManager();
