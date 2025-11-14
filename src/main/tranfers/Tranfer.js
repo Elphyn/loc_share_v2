@@ -7,10 +7,6 @@ import MessageParser from "./MessageParser.js";
 
 // Should probably make method non static and also track state
 export default class Tranfer extends EventEmitter {
-  static prepareMeta(meta) {
-    return Buffer.from(JSON.stringify(meta));
-  }
-
   static async create(id, files, connector) {
     const channel = await connector.connect(id);
 
@@ -20,60 +16,57 @@ export default class Tranfer extends EventEmitter {
     console.log("[TRANSFER] Start");
 
     for (const file of files) {
-      // await channel.send(
-      //   MessageParser.makeMessage(headers.meta, Tranfer.prepareMeta(file)),
-      // );
-      //
-      // const stream = createReadStream(file.path, {
-      //   highWaterMark: config.chunk_length,
-      // });
-      // const writer = createChannelWriter(channel);
-      //
-      // await new Promise((resolve, reject) => {
-      //   stream.pipe(writer).on("finish", resolve).on("error", reject);
-      // });
-      FileTranfer.sendFile(file, channel);
+      const tranfer = FileTranfer.createOutgoing(file, channel);
+      await tranfer.sendFile();
     }
     console.log("[TRANSFER] finished");
     await channel.send(MessageParser.makeMessage(headers.finishTranfer));
   }
 }
 
-class FileTranfer {
-  constructor(file) {
-    this.meta = file;
+class FileTranfer extends EventEmitter {
+  constructor(file, channel, type) {
+    super();
+    this.file = file;
+    this.channel = channel;
     this.bytesSent = 0;
+    this.type = type;
   }
 
   static recieveFile(file) {}
 
-  // TODO: this should return a File Tranfer object
-  // also extend EventEmitter to read progress and errors
-  static async sendFile(file, channel) {
-    // const instance = new FileTranfer(file);
-    await channel.send(
-      MessageParser.makeMessage(headers.meta, Tranfer.prepareMeta(file)),
+  static createOutgoing(file, channel) {
+    const instance = new FileTranfer(file, channel, "receive");
+    return instance;
+  }
+
+  prepareMeta() {
+    return Buffer.from(JSON.stringify(this.file));
+  }
+
+  // TODO: that later should add as a proxy for emitting progress change upwards
+  updateProgress(bytesSent) {
+    this.bytesSent += bytesSent;
+    console.log(`[FILE TRANSFER] ${this.bytesSent} / ${this.file.size}`);
+  }
+
+  async sendFile() {
+    await this.channel.send(
+      MessageParser.makeMessage(headers.meta, this.prepareMeta()),
     );
 
-    const stream = createReadStream(file.path, {
+    const stream = createReadStream(this.file.path, {
       highWaterMark: config.chunk_length,
     });
-    const channelWriter = createChannelWriter(channel);
+    const channelWriter = createChannelWriter(this.channel);
 
     await new Promise((resolve, reject) => {
-      const updateProgress = (bytesSent) => {
-        // TODO: to update here we need to have an instance of the class
-        // meaning this whole method should create one and refer to it
-        // tomorrow work on that
-        this.bytesSent += bytesSent;
-        console.log(`[FILE TRANSFER] ${this.bytesSent} / ${this.meta.size}`);
-      };
-      // old version
-      // stream.pipe(channelWriter).on("finish", resolve).on("error", reject);
       stream
         .pipe(channelWriter)
         .on("finish", resolve)
-        .on("chunk-sent", updateProgress)
+        .on("chunk-sent", (bytes) => {
+          this.updateProgress(bytes);
+        })
         .on("error", reject);
     });
   }
