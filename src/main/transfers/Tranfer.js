@@ -7,20 +7,38 @@ import MessageParser from "./MessageParser.js";
 
 // Should probably make method non static and also track state
 export default class Tranfer extends EventEmitter {
-  static async create(id, files, connector) {
-    const channel = await connector.connect(id);
+  constructor(type, channel, files) {
+    super();
+    this.state = "Preparing";
+    this.files = files;
+    this.channel = channel;
+    this.type = type;
+  }
 
+  static create(type, channel, files) {
+    const instance = new Tranfer(type, channel, files);
+    return instance;
+  }
+
+  async start() {
     // notify start of the tranfer
     console.log("[TRANSFER] sending start tranfer");
-    await channel.send(MessageParser.makeMessage(headers.startTranfer));
+    await this.channel.send(MessageParser.makeMessage(headers.startTranfer));
     console.log("[TRANSFER] Start");
 
-    for (const file of files) {
-      const tranfer = FileTranfer.createOutgoing(file, channel);
+    for (const file of this.files) {
+      const tranfer = FileTranfer.createOutgoing(file, this.channel);
+
+      tranfer.on("progress-change", (bytesSent) => {
+        // TODO: need to propogate up, probably should assign id to files
+        // one layer up at Controller
+        this.emit("file-progress-update", { id: file.id, bytesSent });
+      });
+
       await tranfer.sendFile();
     }
     console.log("[TRANSFER] finished");
-    await channel.send(MessageParser.makeMessage(headers.finishTranfer));
+    await this.channel.send(MessageParser.makeMessage(headers.finishTranfer));
   }
 }
 
@@ -36,7 +54,7 @@ class FileTranfer extends EventEmitter {
   static recieveFile(file) {}
 
   static createOutgoing(file, channel) {
-    const instance = new FileTranfer(file, channel, "receive");
+    const instance = new FileTranfer(file, channel, "out");
     return instance;
   }
 
@@ -47,7 +65,7 @@ class FileTranfer extends EventEmitter {
   // TODO: that later should add as a proxy for emitting progress change upwards
   updateProgress(bytesSent) {
     this.bytesSent += bytesSent;
-    console.log(`[FILE TRANSFER] ${this.bytesSent} / ${this.file.size}`);
+    this.emit("progress-change", this.bytesSent);
   }
 
   async sendFile() {
@@ -71,5 +89,3 @@ class FileTranfer extends EventEmitter {
     });
   }
 }
-//
-// class

@@ -3,9 +3,9 @@ import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import IPCManager from "../ipc/IPCManager.js";
-import Controller from "../tranfers/Controller.js";
+import Controller from "../transfers/Controller.js";
 import InstanceDiscoveryService from "../networking/Services.js";
-import MessageParser from "../tranfers/MessageParser.js";
+import MessageParser from "../transfers/MessageParser.js";
 
 export let win;
 export let instanceDiscoveryService;
@@ -49,7 +49,7 @@ app.whenReady().then(() => {
 ipcMain.once("renderer-ready", async () => {
   messageParser = new MessageParser();
   instanceDiscoveryService = new InstanceDiscoveryService();
-  controller = new Controller();
+  controller = new Controller(instanceDiscoveryService);
   ipcManager = new IPCManager();
 });
 

@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       size: file.size,
       type: file.type,
       path: webUtils.getPathForFile(file),
+      id: file.id,
     }));
     ipcRenderer.send("tranfer-request", { id, files });
   },

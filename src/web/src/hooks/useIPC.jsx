@@ -8,7 +8,7 @@ export function useIPC() {
       setDevices((prev) => [...prev, device]);
     });
     const unsubNearbyDeviceOff = window.electronAPI.nearbyDeviceOff((id) => {
-      setDevices((prev) => prev.filter(device.id !== id));
+      setDevices((prev) => prev.filter((device) => device.id !== id));
     });
 
     window.electronAPI.sendRendererReady();

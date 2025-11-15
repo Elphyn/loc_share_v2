@@ -3,15 +3,26 @@ import EventEmitter from "node:events";
 import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
-import MessageParser from "../tranfers/MessageParser.js";
 import { messageParser } from "../core/main.js";
 
+// TODO: Should probably rename an this to network
+// Also Should rename the file itself
 export default class InstanceDiscoveryService {
   constructor() {
     this.serverManager = new ServerManager();
     this.discoveryManager = new DiscoveryManager();
     this.nearbyDevices = new Map();
+    // TODO: should make a static method that waits for this sevice to be ready
+    // so, create properly, then return, then other parts of the program that are depended on it can be created
     this.setup();
+  }
+
+  connect(id, connector) {
+    if (!this.nearbyDevices.has(id))
+      throw new Error("[CONNECTION FAILURE] No such id in nearbyDevices");
+    const { ip, port } = this.getConnectionInfo(id);
+    const channel = connector.connect(ip, port);
+    return channel;
   }
 
   handleMessage(message) {

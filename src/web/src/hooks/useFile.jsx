@@ -13,8 +13,10 @@ export function useFile() {
   );
 
   const addFile = useCallback((file) => {
+    file.id = crypto.randomUUID();
+    file.bytesSent = 0;
     setFiles((prev) => [...prev, file]);
-  });
+  }, []);
 
   return { files, startTranfer, addFile };
 }
