@@ -12,15 +12,36 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("nearby-device-lost", handler);
     return () => ipcRenderer.removeListener("nearby-device-lost", handler);
   },
-  tranferRequest: (id, files) => {
+  getFilePath: (file) => {
+    return webUtils.getPathForFile(file);
+  },
+  transferRequest: (id, files, transferId) => {
     // need to add filepath, renderer can't do it by itself
-    files = files.map((file) => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      path: webUtils.getPathForFile(file),
-      id: file.id,
-    }));
-    ipcRenderer.send("tranfer-request", { id, files });
+    ipcRenderer.send("transfer-request", { id, files, transferId });
+  },
+
+  onTransferStart: (callback) => {
+    const handler = (_event, transferId) => callback(transferId);
+    ipcRenderer.on("transfer-start", handler);
+    return () => {
+      ipcRenderer.removeListener("transfer-start", handler);
+    };
+  },
+
+  onTransferFinish: (callback) => {
+    const handler = (_event, transferId) => callback(transferId);
+    ipcRenderer.on("transfer-finish", handler);
+    return () => {
+      ipcRenderer.removeListener("transfer-finish", handler);
+    };
+  },
+
+  onFileProgress: (callback) => {
+    const handler = (_event, { transferId, id, bytesSent }) =>
+      callback({ transferId, id, bytesSent });
+    ipcRenderer.on("file-progress-update", handler);
+    return () => {
+      ipcRenderer.removeListener("file-progress-update", handler);
+    };
   },
 });

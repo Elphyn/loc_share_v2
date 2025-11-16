@@ -6,7 +6,7 @@ import { createChannelWriter } from "./Writing.js";
 import MessageParser from "./MessageParser.js";
 
 // Should probably make method non static and also track state
-export default class Tranfer extends EventEmitter {
+export default class Transfer extends EventEmitter {
   constructor(type, channel, files) {
     super();
     this.state = "Preparing";
@@ -16,33 +16,37 @@ export default class Tranfer extends EventEmitter {
   }
 
   static create(type, channel, files) {
-    const instance = new Tranfer(type, channel, files);
+    const instance = new Transfer(type, channel, files);
     return instance;
   }
 
   async start() {
-    // notify start of the tranfer
-    console.log("[TRANSFER] sending start tranfer");
-    await this.channel.send(MessageParser.makeMessage(headers.startTranfer));
+    // notify start of the transfer
+    console.log("[TRANSFER] sending start transfer");
+    await this.channel.send(MessageParser.makeMessage(headers.startTransfer));
     console.log("[TRANSFER] Start");
 
-    for (const file of this.files) {
-      const tranfer = FileTranfer.createOutgoing(file, this.channel);
+    this.emit("transfer-start");
 
-      tranfer.on("progress-change", (bytesSent) => {
+    for (const file of this.files) {
+      const transfer = FileTransfer.createOutgoing(file, this.channel);
+
+      transfer.on("progress-change", (bytesSent) => {
         // TODO: need to propogate up, probably should assign id to files
         // one layer up at Controller
         this.emit("file-progress-update", { id: file.id, bytesSent });
       });
 
-      await tranfer.sendFile();
+      await transfer.sendFile();
     }
     console.log("[TRANSFER] finished");
-    await this.channel.send(MessageParser.makeMessage(headers.finishTranfer));
+    await this.channel.send(MessageParser.makeMessage(headers.finishTransfer));
+
+    this.emit("transfer-finished");
   }
 }
 
-class FileTranfer extends EventEmitter {
+class FileTransfer extends EventEmitter {
   constructor(file, channel, type) {
     super();
     this.file = file;
@@ -54,7 +58,7 @@ class FileTranfer extends EventEmitter {
   static recieveFile(file) {}
 
   static createOutgoing(file, channel) {
-    const instance = new FileTranfer(file, channel, "out");
+    const instance = new FileTransfer(file, channel, "out");
     return instance;
   }
 

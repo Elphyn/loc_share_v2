@@ -1,5 +1,5 @@
 import { createReadStream } from "fs";
-import { Tranfer } from "./Tranfer.js";
+import { Transfer } from "./Transfer.js";
 import { headers } from "./headers.js";
 
 const stream = createReadStream("/home/vlad/Pictures/mountain_black.jpg");

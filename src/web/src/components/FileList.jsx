@@ -5,7 +5,7 @@ export default function FileList() {
 
   return (
     <ul>
-      {files.map((file) => (
+      {Array.from(files.values()).map((file) => (
         <li key={file}>{file.name}</li>
       ))}
     </ul>

@@ -22,9 +22,9 @@ export function useIPC() {
     console.log(devices);
   }, [devices]);
 
-  const notifyTranferRequest = useCallback((id, files) => {
-    window.electronAPI.tranferRequest(id, files);
-  }, []);
+  // const notifyTransferRequest = useCallback((id, files) => {
+  //   window.electronAPI.transferRequest(id, files);
+  // }, []);
 
-  return { devices, notifyTranferRequest };
+  return { devices };
 }

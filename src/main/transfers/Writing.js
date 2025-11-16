@@ -1,4 +1,4 @@
-import Tranfer from "./Tranfer.js";
+import Transfer from "./Transfer.js";
 import { headers } from "./headers.js";
 import { Writable } from "stream";
 import MessageParser from "./MessageParser.js";

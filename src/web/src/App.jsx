@@ -1,6 +1,7 @@
 import DropZone from "./components/DropZone";
 import Devices from "./components/Devices";
 import FileList from "./components/FileList";
+import Transfers from "./components/Transfers.jsx";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Devices />
       <DropZone />
       <FileList />
+      <Transfers />
     </>
   );
 }

@@ -14,14 +14,27 @@ export default class IPCManager {
     ipcBus.on("nearby-device-lost", (id) => {
       win.webContents.send("nearby-device-lost", id);
     });
+    ipcBus.on("transfer-start", (transferId) => {
+      win.webContents.send("transfer-start", transferId);
+    });
+    ipcBus.on("file-progress-update", ({ transferId, id, bytesSent }) => {
+      win.webContents.send("file-progress-update", {
+        transferId,
+        id,
+        bytesSent,
+      });
+    });
+    ipcBus.on("transfer-finish", (transferId) => {
+      win.webContents.send("transfer-finish", transferId);
+    });
 
     ipcMain.on("peer-connection-request", (_event, id) => {
       console.log("[IPC] Client asked to connect to ", id);
       ipcBus.emit("peer-connection-request", id);
     });
-    ipcMain.on("tranfer-request", (_event, req) => {
-      console.log("[IPC] Asked for a tranfer to ", req.id);
-      ipcBus.emit("tranfer-request", req);
+    ipcMain.on("transfer-request", (_event, req) => {
+      console.log("[IPC] Asked for a transfer to ", req.id);
+      ipcBus.emit("transfer-request", req);
     });
   }
 }
