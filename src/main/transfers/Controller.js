@@ -15,8 +15,8 @@ export default class Controller {
     ipcBus.on("transfer-request", ({ id, files, transferId }) => {
       this.createOutgoingTranfer(id, files, transferId);
     });
-    this.network.on("server-message", ({ from, type, payload }) => {
-      console.log("[DEBUG] Got message from: ", from);
+    this.network.on("transfer-request", (channel) => {
+      console.log("[DEBUG] Got tranfer request from ", channel.bonjourId);
     });
   }
 

@@ -52,7 +52,7 @@ export default class MessageParser extends EventEmitter {
       const messageType = this.buffer.readUint8(0);
 
       if (!includesPayload.has(messageType)) {
-        this.emit("message", { from: socketId, type: messageType });
+        this.emit("message", { type: messageType });
         this.buffer = this.buffer.subarray(1);
         continue;
       }
@@ -65,7 +65,7 @@ export default class MessageParser extends EventEmitter {
 
       const payload = this.buffer.subarray(5, payloadLen + 5);
 
-      this.emit("message", { from: socketId, type: messageType, payload });
+      this.emit("message", { type: messageType, payload });
 
       this.buffer = this.buffer.subarray(payloadLen + 5);
     }

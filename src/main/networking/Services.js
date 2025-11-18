@@ -5,6 +5,8 @@ import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
 import { messageParser } from "../core/main.js";
 import MessageParser from "../transfers/MessageParser.js";
+import IncomingChannel from "../transfers/Channel.js";
+import { channel } from "node:diagnostics_channel";
 
 // TODO: Should probably rename an this to network
 // Also Should rename the file itself
@@ -31,13 +33,12 @@ export default class InstanceDiscoveryService extends EventEmitter {
     return channel;
   }
 
-  handleMessage(message) {
-    this.emit("server-message", message);
-  }
-
   async setup() {
     const port = await this.serverManager.createServer();
-    this.serverManager.on("message", this.handleMessage);
+
+    this.serverManager.on("transfer-request", (channel) => {
+      this.emit("transfer-request", channel);
+    });
 
     this.discoveryManager.pubish("tcp", port);
     this.discoveryManager.browse("tcp");
@@ -82,28 +83,13 @@ class ServerManager extends EventEmitter {
     super();
     this.server = null;
     this.port = null;
-    this.setupParser();
-  }
-
-  setupParser() {
-    this.messageParser.on("message", (message) => {
-      console.log("[PARSER] got message: ", message);
-      this.emit("message", message);
-    });
   }
 
   async createServer() {
     this.server = net.createServer((socket) => {
-      const socketId = crypto.randomUUID();
-
-      const messageParser = new MessageParser();
-
-      this.messageParser.on("message", (message) => {
-        this.emit("message", { from: socketId, ...message });
-      });
-
-      socket.on("data", (data) => {
-        messageParser.feed(data);
+      const channel = new IncomingChannel(socket);
+      channel.on("transfer-request", () => {
+        this.emit("transfer-request", channel);
       });
     });
 
