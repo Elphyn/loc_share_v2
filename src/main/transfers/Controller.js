@@ -13,20 +13,22 @@ export default class Controller {
 
   setup() {
     ipcBus.on("transfer-request", ({ id, files, transferId }) => {
-      this.createTransfer(id, files, transferId);
+      this.createOutgoingTranfer(id, files, transferId);
     });
-    // this.network.on("server-message", ({ type, payload }) => {
-    //   if (type !== headers.startTransfer || this.busy) return;
-    // });
+    this.network.on("server-message", ({ from, type, payload }) => {
+      console.log("[DEBUG] Got message from: ", from);
+    });
   }
 
-  async receiveTransfer() {}
+  async createIncomingTranfer() {}
 
-  async createTransfer(id, files, transferId) {
+  async createOutgoingTranfer(id, files, transferId) {
     try {
       const channel = await this.network.connect(id, TcpConnector);
 
-      const transfer = Transfer.create("out", channel, files);
+      const localId = this.network.getAppInstanceId();
+
+      const transfer = Transfer.create("out", channel, files, localId);
 
       // TODO: something tells me it's kind of not the best approach
       // Writer approach with on.on.catch was better

@@ -4,7 +4,11 @@ import EventEmitter from "node:events";
 export default class MessageParser extends EventEmitter {
   constructor() {
     super();
-    this.buffer = Buffer.alloc(0);
+    // this.buffer = Buffer.alloc(0);
+    // assuming there's a possibility that there could be multiple people trying to communicate
+    // even a request on which I could answer "Instance is busy when we're already receiving a tranfer" is going to break the tranfer
+    // so to avoid it for each person that is sending you something we're making different buffers
+    this.channelBuffers = new Map();
     // this.expectedLength = null;
   }
 
@@ -25,6 +29,15 @@ export default class MessageParser extends EventEmitter {
         "[TRANSFER ERROR] payload header was specified but no payload was given",
       );
 
+    if (typeof payload !== "string" && !Buffer.isBuffer(payload))
+      throw new Error(
+        "[TRANSFER ERROR] Payload should be either string or Buffer",
+      );
+
+    if (typeof payload === "string") {
+      payload = Buffer.from(payload);
+    }
+
     const headers = Buffer.alloc(5);
 
     headers.writeUint8(typeHeader, 0);
@@ -34,31 +47,35 @@ export default class MessageParser extends EventEmitter {
     return Buffer.concat([headers, payload]);
   }
 
-  feed(chunk) {
-    this.buffer = Buffer.concat([this.buffer, chunk]);
+  feed(socketId, chunk) {
+    if (!this.channelBuffers.has(socketId))
+      this.channelBuffers.set(socketId, Buffer.alloc(0));
+
+    let buffer = this.channelBuffers.get(socketId);
+    buffer = Buffer.concat([buffer, chunk]);
 
     while (true) {
-      if (this.buffer.length < 1) break;
+      if (buffer.length < 1) break;
 
-      const messageType = this.buffer.readUint8(0);
+      const messageType = buffer.readUint8(0);
 
       if (!includesPayload.has(messageType)) {
-        this.emit("message", { type: messageType });
-        this.buffer = this.buffer.subarray(1);
+        this.emit("message", { from: socketId, type: messageType });
+        buffer = buffer.subarray(1);
         continue;
       }
 
-      if (this.buffer.length < 5) break;
+      if (buffer.length < 5) break;
 
-      const payloadLen = this.buffer.readUInt32BE(1);
+      const payloadLen = buffer.readUInt32BE(1);
 
-      if (this.buffer.length < payloadLen + 5) break;
+      if (buffer.length < payloadLen + 5) break;
 
-      const payload = this.buffer.subarray(5, payloadLen + 5);
+      const payload = buffer.subarray(5, payloadLen + 5);
 
-      this.emit("message", { type: messageType, payload });
+      this.emit("message", { from: socketId, type: messageType, payload });
 
-      this.buffer = this.buffer.subarray(payloadLen + 5);
+      buffer = buffer.subarray(payloadLen + 5);
     }
   }
 }

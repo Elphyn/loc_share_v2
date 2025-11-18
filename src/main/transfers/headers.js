@@ -7,4 +7,4 @@ export const headers = {
   finishTransfer: 5,
 };
 
-export const includesPayload = new Set([2, 3]);
+export const includesPayload = new Set([1, 2, 3]);

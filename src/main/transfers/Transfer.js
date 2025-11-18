@@ -1,4 +1,4 @@
-import { headers, includesPayload } from "./headers.js";
+import { headers } from "./headers.js";
 import { createReadStream } from "fs";
 import EventEmitter from "events";
 import { config } from "../core/config.js";
@@ -7,23 +7,26 @@ import MessageParser from "./MessageParser.js";
 
 // Should probably make method non static and also track state
 export default class Transfer extends EventEmitter {
-  constructor(type, channel, files) {
+  constructor(type, channel, files, localId) {
     super();
     this.state = "Preparing";
     this.files = files;
     this.channel = channel;
-    this.type = type;
+    this.localId = localId;
   }
 
-  static create(type, channel, files) {
-    const instance = new Transfer(type, channel, files);
+  static create(type, channel, files, localId) {
+    const instance = new Transfer(type, channel, files, localId);
     return instance;
   }
 
   async start() {
     // notify start of the transfer
     console.log("[TRANSFER] sending start transfer");
-    await this.channel.send(MessageParser.makeMessage(headers.startTransfer));
+
+    await this.channel.send(
+      MessageParser.makeMessage(headers.startTransfer, this.localId),
+    );
     console.log("[TRANSFER] Start");
 
     this.emit("transfer-start");
@@ -62,9 +65,9 @@ class FileTransfer extends EventEmitter {
     return instance;
   }
 
-  prepareMeta() {
-    return Buffer.from(JSON.stringify(this.file));
-  }
+  // prepareMeta() {
+  //   return Buffer.from(JSON.stringify(this.file));
+  // }
 
   // TODO: that later should add as a proxy for emitting progress change upwards
   updateProgress(bytesSent) {
@@ -74,7 +77,7 @@ class FileTransfer extends EventEmitter {
 
   async sendFile() {
     await this.channel.send(
-      MessageParser.makeMessage(headers.meta, this.prepareMeta()),
+      MessageParser.makeMessage(headers.meta, JSON.stringify(this.file)),
     );
 
     const stream = createReadStream(this.file.path, {

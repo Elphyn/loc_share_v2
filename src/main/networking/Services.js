@@ -7,14 +7,19 @@ import { messageParser } from "../core/main.js";
 
 // TODO: Should probably rename an this to network
 // Also Should rename the file itself
-export default class InstanceDiscoveryService {
+export default class InstanceDiscoveryService extends EventEmitter {
   constructor() {
+    super();
     this.serverManager = new ServerManager();
     this.discoveryManager = new DiscoveryManager();
     this.nearbyDevices = new Map();
     // TODO: should make a static method that waits for this sevice to be ready
     // so, create properly, then return, then other parts of the program that are depended on it can be created
     this.setup();
+  }
+
+  getAppInstanceId() {
+    return this.discoveryManager.getLocalInstanceId();
   }
 
   connect(id, connector) {
@@ -89,8 +94,10 @@ class ServerManager extends EventEmitter {
 
   async createServer() {
     this.server = net.createServer((socket) => {
+      const socketId = crypto.randomUUID();
       socket.on("data", (data) => {
-        this.messageParser.feed(data);
+        // that's not how it works I guess
+        this.messageParser.feed(socketId, data);
       });
     });
 
@@ -126,6 +133,10 @@ class DiscoveryManager extends EventEmitter {
     this.bonjour = bonjour();
     this.browser = null;
     this.localInstanceId = null;
+  }
+
+  getLocalInstanceId() {
+    return this.localInstanceId;
   }
 
   browse(type) {
