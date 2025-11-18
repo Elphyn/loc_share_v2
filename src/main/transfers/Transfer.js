@@ -58,16 +58,12 @@ class FileTransfer extends EventEmitter {
     this.type = type;
   }
 
-  static recieveFile(file) {}
+  static createIncoming(file) {}
 
   static createOutgoing(file, channel) {
     const instance = new FileTransfer(file, channel, "out");
     return instance;
   }
-
-  // prepareMeta() {
-  //   return Buffer.from(JSON.stringify(this.file));
-  // }
 
   // TODO: that later should add as a proxy for emitting progress change upwards
   updateProgress(bytesSent) {
@@ -83,6 +79,7 @@ class FileTransfer extends EventEmitter {
     const stream = createReadStream(this.file.path, {
       highWaterMark: config.chunk_length,
     });
+
     const channelWriter = createChannelWriter(this.channel);
 
     await new Promise((resolve, reject) => {

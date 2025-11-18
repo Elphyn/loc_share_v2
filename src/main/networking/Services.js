@@ -4,6 +4,7 @@ import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
 import { messageParser } from "../core/main.js";
+import MessageParser from "../transfers/MessageParser.js";
 
 // TODO: Should probably rename an this to network
 // Also Should rename the file itself
@@ -81,7 +82,6 @@ class ServerManager extends EventEmitter {
     super();
     this.server = null;
     this.port = null;
-    this.messageParser = messageParser;
     this.setupParser();
   }
 
@@ -95,15 +95,26 @@ class ServerManager extends EventEmitter {
   async createServer() {
     this.server = net.createServer((socket) => {
       const socketId = crypto.randomUUID();
+
+      const messageParser = new MessageParser();
+
+      this.messageParser.on("message", (message) => {
+        this.emit("message", { from: socketId, ...message });
+      });
+
       socket.on("data", (data) => {
-        // that's not how it works I guess
-        this.messageParser.feed(socketId, data);
+        messageParser.feed(data);
       });
     });
 
+    // TODO: starting server could fail due to this line
+    // so wrap in protection and retry
     this.port = await getPort({ port: portNumbers(3000, 3100) });
 
     await new Promise((resolve) => {
+      // this could fail if both instances start at the same moment
+      // probabl could just wrap in retry
+      // due to port
       this.server.listen(this.port, () => {
         console.log("[SERVER] Server started");
         resolve();
