@@ -1,7 +1,6 @@
 import { TcpConnector } from "../networking/Connectors.js";
 import { ipcBus } from "../core/events.js";
 import Transfer from "./Transfer.js";
-import { headers } from "./headers.js";
 
 export default class Controller {
   constructor(network) {
@@ -17,10 +16,11 @@ export default class Controller {
     });
     this.network.on("transfer-request", (channel) => {
       console.log("[DEBUG] Got tranfer request from ", channel.bonjourId);
+      this.createIncomingTranfer(channel);
     });
   }
 
-  async createIncomingTranfer() {}
+  async createIncomingTranfer(channel) {}
 
   async createOutgoingTranfer(id, files, transferId) {
     try {
