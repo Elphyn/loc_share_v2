@@ -88,8 +88,8 @@ class ServerManager extends EventEmitter {
   async createServer() {
     this.server = net.createServer((socket) => {
       const channel = new IncomingChannel(socket);
-      channel.on("transfer-request", () => {
-        this.emit("transfer-request", channel);
+      channel.on("transfer-request", (transferInfo) => {
+        this.emit("transfer-request", { transfer: transferInfo, channel });
       });
     });
 

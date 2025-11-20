@@ -1,6 +1,10 @@
 import { TcpConnector } from "../networking/Connectors.js";
 import { ipcBus } from "../core/events.js";
 import Transfer from "./Transfer.js";
+import { ChannelReadable } from "./Writing.js";
+import { createWriteStream, write } from "node:fs";
+import path from "node:path";
+import { config } from "../core/config.js";
 
 export default class Controller {
   constructor(network) {
@@ -14,13 +18,38 @@ export default class Controller {
     ipcBus.on("transfer-request", ({ id, files, transferId }) => {
       this.createOutgoingTranfer(id, files, transferId);
     });
-    this.network.on("transfer-request", (channel) => {
-      console.log("[DEBUG] Got tranfer request from ", channel.bonjourId);
-      this.createIncomingTranfer(channel);
+    this.network.on("transfer-request", ({ transfer, channel }) => {
+      this.createIncomingTranfer(transfer, channel);
     });
   }
 
-  async createIncomingTranfer(channel) {}
+  // TODO: this needs a thourough checking, possible leaks and logic errors
+  // and actual decomposition, classes
+  async createIncomingTranfer(transfer, channel) {
+    const transferID = crypto.randomUUID();
+
+    ipcBus.emit("new-transfer", { id: transferID, transfer });
+
+    const handleFile = async (fileID) => {
+      const fileChunks = new ChannelReadable(channel);
+
+      const saveFolder = config.savePath;
+      console.log("[DEBUG] Save folder is: ", saveFolder);
+
+      const writeStream = createWriteStream(
+        path.join(config.savePath, transfer.files[fileID].name),
+      );
+
+      await new Promise((resolve, reject) => {
+        // writeStream.pipe(fileChunks).on("finish", resolve).on("error", reject);
+        fileChunks.pipe(writeStream).on("finish", resolve).on("error", reject);
+      });
+
+      console.log("[DEBUG] Finished writing a file");
+    };
+
+    channel.on("transfer-file-start", handleFile);
+  }
 
   async createOutgoingTranfer(id, files) {
     if (files.length === 0) return;
@@ -47,7 +76,7 @@ export default class Controller {
 
       const localId = this.network.getAppInstanceId();
 
-      const transfer = Transfer.create("out", channel, files, localId);
+      const transfer = Transfer.createOutgoing("out", channel, files, localId);
 
       transfer.on("transfer-start", () => {
         ipcBus.emit("transfer-start", transferID);

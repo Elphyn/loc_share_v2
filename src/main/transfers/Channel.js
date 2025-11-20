@@ -21,13 +21,21 @@ export default class IncomingChannel extends EventEmitter {
     });
   }
 
+  pause() {
+    this.socket.pause();
+  }
+
+  resume() {
+    this.socket.resume();
+  }
+
   handleMessage(message) {
     switch (message.type) {
       case headers.startTransfer:
         this.handleTranferRequest(message);
         break;
       case headers.meta:
-        this.handleFileMeta(message);
+        this.transferFileStart(message);
         break;
       case headers.chunk:
         this.emit("file-chunk", message.payload);
@@ -49,11 +57,11 @@ export default class IncomingChannel extends EventEmitter {
     // this.bonjourId = message.payload.toString();
     const tranferInfo = JSON.parse(message.payload);
     console.log("[DEBUG] Received on start transfer: ", tranferInfo);
-    this.emit("transfer-request");
+    this.emit("transfer-request", tranferInfo);
   }
 
-  handleFileMeta(message) {
-    const fileMeta = message.payload.toString();
-    this.emit("file-meta", JSON.parse(fileMeta));
+  transferFileStart(message) {
+    const fileID = message.payload.toString();
+    this.emit("transfer-file-start", fileID);
   }
 }

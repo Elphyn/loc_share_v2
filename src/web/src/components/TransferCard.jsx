@@ -9,7 +9,7 @@ export default function TransferCard({ transfer }) {
             <div>
               <h1>{file.name}</h1>
               <h2>
-                Progress: {file.bytesSent} / {file.size}
+                Progress: {file.bytesSent || 0} / {file.size}
               </h2>
             </div>
           </li>

@@ -15,7 +15,7 @@ export default class Transfer extends EventEmitter {
     this.localId = localId;
   }
 
-  static create(type, channel, files, localId) {
+  static createOutgoing(type, channel, files, localId) {
     const instance = new Transfer(type, channel, files, localId);
     return instance;
   }
@@ -43,7 +43,7 @@ export default class Transfer extends EventEmitter {
     this.emit("transfer-start");
 
     for (const [id, file] of Object.entries(this.files)) {
-      const transfer = FileTransfer.createOutgoing(file, this.channel);
+      const transfer = FileTransfer.createOutgoing(file, id, this.channel);
 
       transfer.on("progress-change", (bytesSent) => {
         this.emit("file-progress-update", { id, bytesSent });
@@ -59,18 +59,22 @@ export default class Transfer extends EventEmitter {
 }
 
 class FileTransfer extends EventEmitter {
-  constructor(file, channel, type) {
+  constructor(file, fileID, channel, type) {
     super();
     this.file = file;
     this.channel = channel;
+    this.fileID = fileID;
     this.bytesSent = 0;
     this.type = type;
   }
 
-  static createIncoming(file) {}
+  static createIncoming(file, fileID, channel) {
+    const instance = new FileTransfer(file, fileID, channel, "incoming");
+    return instance;
+  }
 
-  static createOutgoing(file, channel) {
-    const instance = new FileTransfer(file, channel, "out");
+  static createOutgoing(file, fileID, channel) {
+    const instance = new FileTransfer(file, fileID, channel, "outgoing");
     return instance;
   }
 
@@ -82,10 +86,12 @@ class FileTransfer extends EventEmitter {
     this.emit("progress-change", this.bytesSent);
   }
 
+  async receiveFile() {}
+
   async sendFile() {
     // TODO: since I've decided to have one big meta object about transfer get sent before the files I should instead send id's
     await this.channel.send(
-      MessageParser.makeMessage(headers.meta, JSON.stringify(this.file)),
+      MessageParser.makeMessage(headers.meta, this.fileID),
     );
 
     const stream = createReadStream(this.file.path, {

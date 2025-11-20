@@ -25,10 +25,12 @@ export default class MessageParser extends EventEmitter {
         "[PARSER ERROR] payload header was specified but no payload was given",
       );
 
-    if (typeof payload !== "string" && !Buffer.isBuffer(payload))
+    if (typeof payload !== "string" && !Buffer.isBuffer(payload)) {
+      console.log("[DEBUG] payload here: ", payload);
       throw new Error(
-        "[PARSER ERROR] Payload should be either string or Buffer",
+        `[PARSER ERROR] Payload should be either string or Buffer, got ${typeof payload}`,
       );
+    }
 
     if (typeof payload === "string") {
       payload = Buffer.from(payload);

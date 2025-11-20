@@ -19,7 +19,7 @@ export class TcpConnector {
       });
 
       if (!ok) {
-        this.socket.on("drain", resolve);
+        this.socket.once("drain", resolve);
       }
     });
   }

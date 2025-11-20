@@ -1,5 +1,5 @@
 import { headers } from "./headers.js";
-import { Writable } from "stream";
+import { Readable, Writable } from "stream";
 import MessageParser from "./MessageParser.js";
 
 export function createChannelWriter(channel) {
@@ -23,10 +23,27 @@ export function createChannelWriter(channel) {
   });
 }
 
-// export function createFileWriter(path) {
-//   return new Writable({
-//     write(chunk, _encoding, callback) {
-//
-//     }
-//   })
-// }
+export class ChannelReadable extends Readable {
+  constructor(channel, options = {}) {
+    super(options);
+
+    this.channel = channel;
+
+    channel.on("file-chunk", (chunk) => {
+      const ok = this.push(chunk);
+
+      // not ok - no more room in buffer, need to slow down
+      if (!ok) {
+        channel.pause();
+      }
+    });
+
+    channel.on("file-finished", () => {
+      this.push(null);
+    });
+  }
+
+  _read() {
+    this.channel.resume();
+  }
+}
