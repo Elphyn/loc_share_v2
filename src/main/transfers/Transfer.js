@@ -21,7 +21,6 @@ export default class Transfer extends EventEmitter {
   }
 
   async start() {
-    console.log("[DEBUG] this.files before crash: ", this.files);
     await this.channel.send(
       MessageParser.makeMessage(
         headers.startTransfer,
@@ -47,8 +46,6 @@ export default class Transfer extends EventEmitter {
       const transfer = FileTransfer.createOutgoing(file, this.channel);
 
       transfer.on("progress-change", (bytesSent) => {
-        // TODO: need to propogate up, probably should assign id to files
-        // one layer up at Controller
         this.emit("file-progress-update", { id, bytesSent });
       });
 
@@ -56,7 +53,6 @@ export default class Transfer extends EventEmitter {
     }
 
     await this.channel.send(MessageParser.makeMessage(headers.finishTransfer));
-    console.log("[DEBUG] Sent to front finished transfer");
 
     this.emit("transfer-finished");
   }

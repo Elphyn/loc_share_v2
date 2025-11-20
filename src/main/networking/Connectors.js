@@ -1,5 +1,4 @@
 import net from "net";
-import { instanceDiscoveryService } from "../core/main.js";
 
 // TODO: This shouldn't return socket on connection, it should
 // return a channel class, first make this class

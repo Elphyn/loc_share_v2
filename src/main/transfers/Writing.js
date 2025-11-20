@@ -15,7 +15,6 @@ export function createChannelWriter(channel) {
         .catch(callback);
     },
     final(callback) {
-      console.log("[DEBUG] Transfer actually finished");
       channel
         .send(MessageParser.makeMessage(headers.finish))
         .then(() => callback())
