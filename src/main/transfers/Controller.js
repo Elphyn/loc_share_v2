@@ -22,7 +22,27 @@ export default class Controller {
 
   async createIncomingTranfer(channel) {}
 
-  async createOutgoingTranfer(id, files, transferId) {
+  async createOutgoingTranfer(id, files) {
+    // preparing files for easier referencing on both sides and front
+    files = files.reduce((obj, file) => {
+      const id = crypto.randomUUID();
+      obj[id] = file;
+      return obj;
+    }, {});
+
+    // TODO: later should probably store all of this in a map here as well
+    // no need for now though
+    const transferID = crypto.randomUUID();
+    const transferInfo = {
+      type: "outgoing",
+      to: id,
+      state: "Pending",
+      files,
+    };
+    console.log("[DEBUG] files after: ", files);
+
+    ipcBus.emit("new-transfer", { id: transferID, transfer: transferInfo });
+
     try {
       const channel = await this.network.connect(id, TcpConnector);
 
@@ -30,22 +50,24 @@ export default class Controller {
 
       const transfer = Transfer.create("out", channel, files, localId);
 
-      // TODO: something tells me it's kind of not the best approach
-      // Writer approach with on.on.catch was better
       transfer.on("transfer-start", () => {
-        ipcBus.emit("transfer-start", transferId);
+        ipcBus.emit("transfer-start", transferID);
       });
 
       transfer.on("file-progress-update", ({ id, bytesSent }) => {
-        //TODO: transfer id here,
-        ipcBus.emit("file-progress-update", { transferId, id, bytesSent });
+        ipcBus.emit("file-progress-update", {
+          transferID,
+          fileID: id,
+          bytesSent,
+        });
       });
 
       await transfer.start();
-      ipcBus.emit("transfer-finish", transferId);
+      ipcBus.emit("transfer-finish", transferID);
       console.log("[CONTROLLER] Transfer finished");
     } catch (err) {
       console.log("[Transfer] Transfer failed, err:", err);
+      //TODO: need to configure emitting failure to front here
     }
   }
 }

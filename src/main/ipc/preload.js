@@ -19,9 +19,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // need to add filepath, renderer can't do it by itself
     ipcRenderer.send("transfer-request", { id, files, transferId });
   },
-
+  onNewTransfer: (callback) => {
+    const handler = (_event, transfer) => callback(transfer);
+    ipcRenderer.on("new-transfer", handler);
+    return () => {
+      ipcRenderer.removeListener("new-transfer", handler);
+    };
+  },
   onTransferStart: (callback) => {
-    const handler = (_event, transferId) => callback(transferId);
+    const handler = (_event, transferID) => callback(transferID);
     ipcRenderer.on("transfer-start", handler);
     return () => {
       ipcRenderer.removeListener("transfer-start", handler);
@@ -29,7 +35,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
 
   onTransferFinish: (callback) => {
-    const handler = (_event, transferId) => callback(transferId);
+    const handler = (_event, transferID) => callback(transferID);
     ipcRenderer.on("transfer-finish", handler);
     return () => {
       ipcRenderer.removeListener("transfer-finish", handler);
@@ -37,8 +43,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
 
   onFileProgress: (callback) => {
-    const handler = (_event, { transferId, id, bytesSent }) =>
-      callback({ transferId, id, bytesSent });
+    const handler = (_event, { transferID, fileID, bytesSent }) =>
+      callback({ transferID, fileID, bytesSent });
     ipcRenderer.on("file-progress-update", handler);
     return () => {
       ipcRenderer.removeListener("file-progress-update", handler);

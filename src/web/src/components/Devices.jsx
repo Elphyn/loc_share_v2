@@ -3,14 +3,14 @@ import { useIPCContext } from "../contexts/useIPCContext";
 
 export default function Devices() {
   const { devices } = useIPCContext();
-  const { startTransfer } = useFileContext();
+  const { requestTransfer } = useFileContext();
 
   return (
     <div>
       <ul>
         {devices.map((device) => {
           const handleClick = () => {
-            startTransfer(device.id);
+            requestTransfer(device.id);
           };
           return (
             <li className="border-solid border-black m-5 flex justify-between">

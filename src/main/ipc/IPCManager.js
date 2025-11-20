@@ -14,13 +14,16 @@ export default class IPCManager {
     ipcBus.on("nearby-device-lost", (id) => {
       win.webContents.send("nearby-device-lost", id);
     });
+    ipcBus.on("new-transfer", (transfer) => {
+      win.webContents.send("new-transfer", transfer);
+    });
     ipcBus.on("transfer-start", (transferId) => {
       win.webContents.send("transfer-start", transferId);
     });
-    ipcBus.on("file-progress-update", ({ transferId, id, bytesSent }) => {
+    ipcBus.on("file-progress-update", ({ transferID, fileID, bytesSent }) => {
       win.webContents.send("file-progress-update", {
-        transferId,
-        id,
+        transferID,
+        fileID,
         bytesSent,
       });
     });

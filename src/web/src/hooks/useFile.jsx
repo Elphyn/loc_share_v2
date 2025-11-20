@@ -1,100 +1,82 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export function useFile() {
-  const [files, setFiles] = useState(new Map());
+  const [files, setFiles] = useState([]);
   // TODO: Handle a state change of the transfers
-  const [transfers, setTransfers] = useState(new Map());
+  const [transfers, setTransfers] = useState({});
 
-  // TODO: due to possible timing issues should create a table entry on update
-  // just check if there's an entry, if there's none then make one
-  const startTransfer = useCallback(
-    (id) => {
-      const transferId = crypto.randomUUID();
-      setTransfers((prev) => {
-        const next = new Map(prev);
-        const transfer = {
-          files,
-          state: "Pending",
-          to: id,
-        };
-        next.set(transferId, transfer);
-        return next;
-      });
-
-      const fileList = Array.from(files.values());
-      window.electronAPI.transferRequest(
-        id,
-        Array.from(files.values()),
-        transferId,
-      );
+  // to: instanceId to which you wanna send files
+  const requestTransfer = useCallback(
+    (to) => {
+      window.electronAPI.transferRequest(to, files);
     },
     [files],
   );
 
   const addFile = useCallback((file) => {
-    setFiles((prev) => {
-      const next = new Map(prev);
-      const fileId = crypto.randomUUID();
-      const fileEntry = {
-        id: fileId,
-        bytesSent: 0,
+    setFiles((prev) => [
+      ...prev,
+      {
         name: file.name,
         size: file.size,
+        // adding type for future handling of sending directories
         type: file.type,
         path: window.electronAPI.getFilePath(file),
-      };
-      next.set(fileId, fileEntry);
-      return next;
-    });
+      },
+    ]);
   }, []);
 
-  useEffect(() => {}, [files]);
-
   useEffect(() => {
-    const unsubStart = window.electronAPI.onTransferStart((transferId) => {
-      setTransfers((prev) => {
-        const next = new Map(prev);
-        const transfer = next.get(transferId);
-        const updatedTrasfer = { ...transfer, state: "Started" };
-        next.set(transferId, updatedTrasfer);
-        return next;
-      });
-    });
+    const unsubOnNewTransfer = window.electronAPI.onNewTransfer(
+      ({ id, transfer }) => {
+        console.log("[DEBUG] New transfer arrived");
+        setTransfers((prev) => ({ ...prev, [id]: transfer }));
+      },
+    );
 
-    const unsubFinish = window.electronAPI.onTransferFinish((transferId) => {
-      setTransfers((prev) => {
-        const next = new Map(prev);
-        const transfer = next.get(transferId);
-        const updatedTrasfer = { ...transfer, state: "Finished" };
-        next.set(transferId, updatedTrasfer);
-        return next;
-      });
-    });
+    const unsubOnTransferStart = window.electronAPI.onTransferStart(
+      (transferID) => {
+        setTransfers((prev) => ({
+          ...prev,
+          [transferID]: { ...prev[transferID], state: "Started" },
+        }));
+      },
+    );
 
-    const unsubFileProgress = window.electronAPI.onFileProgress(
-      ({ transferId, id, bytesSent }) => {
+    const unsubOnTransferFinish = window.electronAPI.onTransferFinish(
+      (transferID) => {
+        setTransfers((prev) => ({
+          ...prev,
+          [transferID]: { ...prev[transferID], state: "Finished" },
+        }));
+      },
+    );
+
+    const unsubOnFileProgress = window.electronAPI.onFileProgress(
+      ({ transferID, fileID, bytesSent }) => {
+        console.log("[DEBUG] file update arrived");
+        console.log("With these params: ", { transferID, fileID, bytesSent });
         setTransfers((prev) => {
-          const next = new Map(prev);
-          const transfer = next.get(transferId);
-
-          const newFiles = new Map(transfer.files);
-          const updatedFile = { ...newFiles.get(id), bytesSent };
-          newFiles.set(id, updatedFile);
-
-          const updatedTransfer = { ...transfer, files: newFiles };
-          next.set(transferId, updatedTransfer);
-
-          return next;
+          const { files, ...rest } = prev[transferID];
+          const file = files[fileID];
+          const nextFile = { ...file, bytesSent };
+          const nextFiles = { ...files, [fileID]: nextFile };
+          return { ...prev, [transferID]: { ...rest, files: nextFiles } };
         });
       },
     );
 
     return () => {
-      unsubStart();
-      unsubFinish();
-      unsubFileProgress();
+      unsubOnNewTransfer();
+      unsubOnTransferStart();
+      unsubOnTransferFinish();
+      unsubOnFileProgress();
     };
   }, []);
 
-  return { files, startTransfer, addFile, transfers };
+  useEffect(() => {
+    console.log("[DEBUG] Transfers changed: ", transfers);
+  }, [transfers]);
+
+  return { files, requestTransfer, addFile, transfers };
 }

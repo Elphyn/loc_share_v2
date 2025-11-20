@@ -21,28 +21,42 @@ export default class Transfer extends EventEmitter {
   }
 
   async start() {
-    // notify start of the transfer
-    console.log("[TRANSFER] sending start transfer");
-
+    console.log("[DEBUG] this.files before crash: ", this.files);
     await this.channel.send(
-      MessageParser.makeMessage(headers.startTransfer, this.localId),
+      MessageParser.makeMessage(
+        headers.startTransfer,
+        JSON.stringify({
+          from: this.localId,
+          // other instance doesn't need to know the path, it's supposed to be another pc
+          // also security reasons
+          // funny looking expression lol, but all it does is dropping path for each file
+          files: Object.entries(this.files).reduce(
+            (obj, [id, { path, ...rest }]) => {
+              obj[id] = rest;
+              return obj;
+            },
+            {},
+          ),
+        }),
+      ),
     );
-    console.log("[TRANSFER] Start");
 
     this.emit("transfer-start");
 
-    for (const file of this.files) {
+    // TODO: this obviously won't work after changes to how files look
+    // for (const file of this.files) {
+    Object.entries(this.files).forEach(async ([id, file]) => {
       const transfer = FileTransfer.createOutgoing(file, this.channel);
 
       transfer.on("progress-change", (bytesSent) => {
         // TODO: need to propogate up, probably should assign id to files
         // one layer up at Controller
-        this.emit("file-progress-update", { id: file.id, bytesSent });
+        this.emit("file-progress-update", { id, bytesSent });
       });
 
       await transfer.sendFile();
-    }
-    console.log("[TRANSFER] finished");
+    });
+
     await this.channel.send(MessageParser.makeMessage(headers.finishTransfer));
 
     this.emit("transfer-finished");
@@ -65,13 +79,16 @@ class FileTransfer extends EventEmitter {
     return instance;
   }
 
-  // TODO: that later should add as a proxy for emitting progress change upwards
+  // TODO: also it's probably a good idea to have something like channel itself preparing the message, not asking for static method
+  // because in future when working with wrtc the method of preparing messages would be different
+  // and since channel itself already has message parser we can reference non static method + the message preparing could be injected on runtime
   updateProgress(bytesSent) {
     this.bytesSent += bytesSent;
     this.emit("progress-change", this.bytesSent);
   }
 
   async sendFile() {
+    // TODO: since I've decided to have one big meta object about transfer get sent before the files I should instead send id's
     await this.channel.send(
       MessageParser.makeMessage(headers.meta, JSON.stringify(this.file)),
     );

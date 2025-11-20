@@ -46,7 +46,9 @@ export default class IncomingChannel extends EventEmitter {
   handleTranferRequest(message) {
     // here I planned to have some relation of socketId and bonjour Id that instance assigns to itself
     // beccause that's what's user sees, not socketId
-    this.bonjourId = message.payload.toString();
+    // this.bonjourId = message.payload.toString();
+    const tranferInfo = JSON.parse(message.payload);
+    console.log("[DEBUG] Received on start transfer: ", tranferInfo);
     this.emit("transfer-request");
   }
 
