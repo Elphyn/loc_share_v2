@@ -2,13 +2,13 @@ import { useState, useCallback, useEffect } from "react";
 
 export function useFile() {
   const [files, setFiles] = useState([]);
-  // TODO: Handle a state change of the transfers
   const [transfers, setTransfers] = useState({});
 
   // to: instanceId to which you wanna send files
   const requestTransfer = useCallback(
     (to) => {
       window.electronAPI.transferRequest(to, files);
+      setFiles([]);
     },
     [files],
   );
@@ -19,7 +19,6 @@ export function useFile() {
       {
         name: file.name,
         size: file.size,
-        // adding type for future handling of sending directories
         type: file.type,
         path: window.electronAPI.getFilePath(file),
       },
@@ -29,7 +28,6 @@ export function useFile() {
   useEffect(() => {
     const unsubOnNewTransfer = window.electronAPI.onNewTransfer(
       ({ id, transfer }) => {
-        console.log("[DEBUG] New transfer arrived");
         setTransfers((prev) => ({ ...prev, [id]: transfer }));
       },
     );
@@ -54,8 +52,6 @@ export function useFile() {
 
     const unsubOnFileProgress = window.electronAPI.onFileProgress(
       ({ transferID, fileID, bytesSent }) => {
-        console.log("[DEBUG] file update arrived");
-        console.log("With these params: ", { transferID, fileID, bytesSent });
         setTransfers((prev) => {
           const { files, ...rest } = prev[transferID];
           const file = files[fileID];
@@ -73,10 +69,6 @@ export function useFile() {
       unsubOnFileProgress();
     };
   }, []);
-
-  useEffect(() => {
-    console.log("[DEBUG] Transfers changed: ", transfers);
-  }, [transfers]);
 
   return { files, requestTransfer, addFile, transfers };
 }

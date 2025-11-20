@@ -1,6 +1,7 @@
 export default function TransferCard({ transfer }) {
   return (
     <li className="bg-border-black">
+      <div>{transfer.type}</div>
       <div>{transfer.state}</div>
       <ul>
         {Object.values(transfer.files).map((file) => (

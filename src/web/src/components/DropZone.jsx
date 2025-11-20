@@ -7,7 +7,6 @@ export default function DropZone() {
   const handleDrop = useCallback(
     (e) => {
       e.preventDefault();
-      console.log("[DEBUG] files: ", e.dataTransfer.files);
       for (const file of e.dataTransfer.files) {
         addFile(file);
       }

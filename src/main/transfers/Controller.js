@@ -23,6 +23,8 @@ export default class Controller {
   async createIncomingTranfer(channel) {}
 
   async createOutgoingTranfer(id, files) {
+    if (files.length === 0) return;
+
     // preparing files for easier referencing on both sides and front
     files = files.reduce((obj, file) => {
       const id = crypto.randomUUID();

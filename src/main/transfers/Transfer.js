@@ -43,7 +43,7 @@ export default class Transfer extends EventEmitter {
 
     this.emit("transfer-start");
 
-    Object.entries(this.files).forEach(async ([id, file]) => {
+    for (const [id, file] of Object.entries(this.files)) {
       const transfer = FileTransfer.createOutgoing(file, this.channel);
 
       transfer.on("progress-change", (bytesSent) => {
@@ -53,9 +53,10 @@ export default class Transfer extends EventEmitter {
       });
 
       await transfer.sendFile();
-    });
+    }
 
     await this.channel.send(MessageParser.makeMessage(headers.finishTransfer));
+    console.log("[DEBUG] Sent to front finished transfer");
 
     this.emit("transfer-finished");
   }
