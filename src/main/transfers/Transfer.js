@@ -43,8 +43,6 @@ export default class Transfer extends EventEmitter {
 
     this.emit("transfer-start");
 
-    // TODO: this obviously won't work after changes to how files look
-    // for (const file of this.files) {
     Object.entries(this.files).forEach(async ([id, file]) => {
       const transfer = FileTransfer.createOutgoing(file, this.channel);
 

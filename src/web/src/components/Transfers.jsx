@@ -6,7 +6,7 @@ export default function Transfers() {
 
   return (
     <ul>
-      {Array.from(transfers.values()).map((transfer) => (
+      {Object.values(transfers).map((transfer) => (
         <TransferCard transfer={transfer} />
       ))}
     </ul>

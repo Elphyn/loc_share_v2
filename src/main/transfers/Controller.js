@@ -30,8 +30,6 @@ export default class Controller {
       return obj;
     }, {});
 
-    // TODO: later should probably store all of this in a map here as well
-    // no need for now though
     const transferID = crypto.randomUUID();
     const transferInfo = {
       type: "outgoing",
@@ -39,7 +37,6 @@ export default class Controller {
       state: "Pending",
       files,
     };
-    console.log("[DEBUG] files after: ", files);
 
     ipcBus.emit("new-transfer", { id: transferID, transfer: transferInfo });
 
