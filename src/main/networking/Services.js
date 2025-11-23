@@ -3,10 +3,7 @@ import EventEmitter from "node:events";
 import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
-import { messageParser } from "../core/main.js";
-import MessageParser from "../transfers/MessageParser.js";
-import IncomingChannel from "../transfers/Channel.js";
-import { channel } from "node:diagnostics_channel";
+import IncomingChannel from "../transfers/IncomingChannel.js";
 
 // TODO: Should probably rename an this to network
 // Also Should rename the file itself

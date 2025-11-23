@@ -29,12 +29,17 @@ export default class IncomingChannel extends EventEmitter {
     this.socket.resume();
   }
 
+  stopOnError(err) {
+    this.socket.destroy(new Error(`Transfer has failed, err: ${err}`));
+  }
+
   handleMessage(message) {
+    console.log("[DEBUG] Message Received: ", message);
     switch (message.type) {
       case headers.startTransfer:
         this.handleTranferRequest(message);
         break;
-      case headers.meta:
+      case headers.file:
         this.transferFileStart(message);
         break;
       case headers.chunk:
@@ -47,6 +52,7 @@ export default class IncomingChannel extends EventEmitter {
         this.emit("tranfer-finished");
         break;
       default:
+        console.log("[DEBUG] Wrong header: ", message);
         throw new Error("[CHANNEL] wrong header in message");
     }
   }

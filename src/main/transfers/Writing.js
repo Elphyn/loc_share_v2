@@ -3,6 +3,7 @@ import { Readable, Writable } from "stream";
 import MessageParser from "./MessageParser.js";
 
 export function createChannelWriter(channel) {
+  // TODO: same here, MessageParser is already injected
   return new Writable({
     write(chunk, _encoding, callback) {
       const onSent = () => {

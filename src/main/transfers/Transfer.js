@@ -90,6 +90,7 @@ class FileTransfer extends EventEmitter {
 
   async sendFile() {
     // TODO: since I've decided to have one big meta object about transfer get sent before the files I should instead send id's
+    // TODO: since the channel is already enjected with message parser, don't use it here
     await this.channel.send(
       MessageParser.makeMessage(headers.meta, this.fileID),
     );
