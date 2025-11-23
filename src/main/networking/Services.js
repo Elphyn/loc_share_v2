@@ -18,7 +18,7 @@ export default class InstanceDiscoveryService extends EventEmitter {
     this.setup();
   }
 
-  getAppInstanceId() {
+  getAppInstanceID() {
     return this.discoveryManager.getLocalInstanceId();
   }
 

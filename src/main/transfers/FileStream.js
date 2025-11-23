@@ -1,7 +1,3 @@
-// TODO:
-// 1) Make a file stream
-// 2) Adjust message parser so it's using injected MessageParser for headers and payload preparing
-
 import EventEmitter from "events";
 import { headers } from "./headers.js";
 import { config } from "../core/config.js";
@@ -14,7 +10,7 @@ export class FileStream extends EventEmitter {
     this.ready = null;
   }
 
-  static receive(channel, meta) {
+  static receive(meta, channel) {
     const instance = new FileStream();
 
     instance.ready = (async () => {
@@ -94,13 +90,15 @@ export class FileStream extends EventEmitter {
           const channelWriter = createChannelWriter(channel);
 
           await new Promise((resolve, reject) => {
+            let bytesSent = 0;
             stream
               .pipe(channelWriter)
               .on("finish", resolve)
               .on("chunk-sent", (bytes) => {
+                bytesSent += bytes;
                 instance.emit("progress-change", {
                   fileID: id,
-                  bytesSent: bytes,
+                  bytesSent,
                 });
               })
               .on("error", reject);
