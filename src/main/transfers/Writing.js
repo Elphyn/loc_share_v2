@@ -1,6 +1,4 @@
-import { headers } from "./headers.js";
 import { Readable, Writable } from "stream";
-import MessageParser from "./MessageParser.js";
 
 export function createChannelWriter(channel) {
   return new Writable({
@@ -9,14 +7,11 @@ export function createChannelWriter(channel) {
         this.emit("chunk-sent", chunk.length);
         callback();
       };
-      channel
-        .send(MessageParser.makeMessage(headers.chunk, chunk))
-        .then(onSent)
-        .catch(callback);
+      channel.sendFileChunk(chunk).then(onSent).catch(callback);
     },
     final(callback) {
       channel
-        .send(MessageParser.makeMessage(headers.finish))
+        .sendFileFinish()
         .then(() => callback())
         .catch(callback);
     },
@@ -29,9 +24,13 @@ export class ChannelReadable extends Readable {
 
     this.channel = channel;
 
-    channel.on("file-chunk", (chunk) => {
-      const ok = this.push(chunk);
+    this.bytesWritten = 0;
 
+    channel.on("file-chunk", (chunk) => {
+      console.log("[IMPORTANT] In file-chunk event in ChannelReadable");
+      const ok = this.push(chunk);
+      this.bytesWritten += chunk.length;
+      this.emit("progress-change", this.bytesWritten);
       // not ok - no more room in buffer, need to slow down
       if (!ok) {
         channel.pause();

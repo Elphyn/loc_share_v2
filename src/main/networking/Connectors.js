@@ -1,4 +1,6 @@
 import net from "net";
+import MessageParser from "../transfers/MessageParser.js";
+import { TcpFileChannel } from "../transfers/OutgoingChannel.js";
 
 // TODO: This shouldn't return socket on connection, it should
 // return a channel class, first make this class
@@ -9,19 +11,7 @@ import net from "net";
 export class TcpConnector {
   constructor(socket) {
     this.socket = socket;
-  }
-
-  async send(data) {
-    return new Promise((resolve, reject) => {
-      const ok = this.socket.write(data, (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-
-      if (!ok) {
-        this.socket.once("drain", resolve);
-      }
-    });
+    this.messageParser = new MessageParser();
   }
 
   static connect(ip, port) {
@@ -34,9 +24,10 @@ export class TcpConnector {
 
       socket.on("connect", () => {
         console.log("[CONNECTOR] Connected");
-        resolve(new TcpConnector(socket));
+        const channel = new TcpFileChannel(socket);
+        resolve(channel);
       });
-
+      // TODO: should grab error here
       socket.on("error", () => {
         reject("Connection failed");
       });

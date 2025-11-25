@@ -8,7 +8,6 @@ function getDownloadsFolder() {
   switch (platform) {
     case "linux":
       return path.join(home, "Downloads");
-      break;
     default:
       throw new Error("[CONFIG] Unsupported operating system");
   }

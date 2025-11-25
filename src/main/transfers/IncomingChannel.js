@@ -29,12 +29,16 @@ export default class IncomingChannel extends EventEmitter {
     this.socket.resume();
   }
 
+  stopOnError(err) {
+    this.socket.destroy(new Error(`Transfer has failed, err: ${err}`));
+  }
+
   handleMessage(message) {
     switch (message.type) {
       case headers.startTransfer:
         this.handleTranferRequest(message);
         break;
-      case headers.meta:
+      case headers.file:
         this.transferFileStart(message);
         break;
       case headers.chunk:
@@ -44,9 +48,10 @@ export default class IncomingChannel extends EventEmitter {
         this.emit("file-finished");
         break;
       case headers.finishTransfer:
-        this.emit("tranfer-finished");
+        this.emit("transfer-finished");
         break;
       default:
+        console.log("[DEBUG] Wrong header: ", message);
         throw new Error("[CHANNEL] wrong header in message");
     }
   }
@@ -56,7 +61,6 @@ export default class IncomingChannel extends EventEmitter {
     // beccause that's what's user sees, not socketId
     // this.bonjourId = message.payload.toString();
     const tranferInfo = JSON.parse(message.payload);
-    console.log("[DEBUG] Received on start transfer: ", tranferInfo);
     this.emit("transfer-request", tranferInfo);
   }
 

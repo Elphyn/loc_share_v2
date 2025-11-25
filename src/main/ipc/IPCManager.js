@@ -20,13 +20,16 @@ export default class IPCManager {
     ipcBus.on("transfer-start", (transferId) => {
       win.webContents.send("transfer-start", transferId);
     });
-    ipcBus.on("file-progress-update", ({ transferID, fileID, bytesSent }) => {
-      win.webContents.send("file-progress-update", {
-        transferID,
-        fileID,
-        bytesSent,
-      });
-    });
+    ipcBus.on(
+      "file-progress-update",
+      ({ transferID, fileID, bytesProcessed }) => {
+        win.webContents.send("file-progress-update", {
+          transferID,
+          fileID,
+          bytesProcessed,
+        });
+      },
+    );
     ipcBus.on("transfer-finish", (transferId) => {
       win.webContents.send("transfer-finish", transferId);
     });

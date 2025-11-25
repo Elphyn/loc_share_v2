@@ -3,10 +3,7 @@ import EventEmitter from "node:events";
 import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
-import { messageParser } from "../core/main.js";
-import MessageParser from "../transfers/MessageParser.js";
-import IncomingChannel from "../transfers/Channel.js";
-import { channel } from "node:diagnostics_channel";
+import IncomingChannel from "../transfers/IncomingChannel.js";
 
 // TODO: Should probably rename an this to network
 // Also Should rename the file itself
@@ -21,15 +18,16 @@ export default class InstanceDiscoveryService extends EventEmitter {
     this.setup();
   }
 
-  getAppInstanceId() {
+  getAppInstanceID() {
     return this.discoveryManager.getLocalInstanceId();
   }
 
-  connect(id, connector) {
+  async connect(id, connector) {
+    console.log("[DEBUG NETWORK] connect triggered ");
     if (!this.nearbyDevices.has(id))
       throw new Error("[CONNECTION FAILURE] No such id in nearbyDevices");
     const { ip, port } = this.getConnectionInfo(id);
-    const channel = connector.connect(ip, port);
+    const channel = await connector.connect(ip, port);
     return channel;
   }
 
@@ -89,7 +87,7 @@ class ServerManager extends EventEmitter {
     this.server = net.createServer((socket) => {
       const channel = new IncomingChannel(socket);
       channel.on("transfer-request", (transferInfo) => {
-        this.emit("transfer-request", { transfer: transferInfo, channel });
+        this.emit("transfer-request", { meta: transferInfo, channel });
       });
     });
 

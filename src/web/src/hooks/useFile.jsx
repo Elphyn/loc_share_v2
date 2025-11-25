@@ -34,6 +34,7 @@ export function useFile() {
 
     const unsubOnTransferStart = window.electronAPI.onTransferStart(
       (transferID) => {
+        console.log("[DEBUG] Transfer started");
         setTransfers((prev) => ({
           ...prev,
           [transferID]: { ...prev[transferID], state: "Started" },
@@ -43,6 +44,7 @@ export function useFile() {
 
     const unsubOnTransferFinish = window.electronAPI.onTransferFinish(
       (transferID) => {
+        console.log("[DEBUG] Transfer finished");
         setTransfers((prev) => ({
           ...prev,
           [transferID]: { ...prev[transferID], state: "Finished" },
@@ -51,11 +53,11 @@ export function useFile() {
     );
 
     const unsubOnFileProgress = window.electronAPI.onFileProgress(
-      ({ transferID, fileID, bytesSent }) => {
+      ({ transferID, fileID, bytesProcessed }) => {
         setTransfers((prev) => {
           const { files, ...rest } = prev[transferID];
           const file = files[fileID];
-          const nextFile = { ...file, bytesSent };
+          const nextFile = { ...file, bytesProcessed };
           const nextFiles = { ...files, [fileID]: nextFile };
           return { ...prev, [transferID]: { ...rest, files: nextFiles } };
         });

@@ -1,4 +1,4 @@
-import { headers, includesPayload } from "./headers.js";
+import { includesPayload } from "./headers.js";
 import EventEmitter from "node:events";
 // TODO: [Improvement] could use allocUnsafe, to have one buffer, no need to create new ones
 export default class MessageParser extends EventEmitter {
