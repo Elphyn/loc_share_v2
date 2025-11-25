@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 import MessageParser from "./MessageParser.js";
+import { headers } from "./headers.js";
 
 export class TcpFileChannel extends EventEmitter {
   constructor(socket) {
@@ -7,7 +8,27 @@ export class TcpFileChannel extends EventEmitter {
     this.socket = socket;
   }
 
-  async send(header, payload) {
+  async sendTransferStart(meta) {
+    await this._send(headers.startTransfer, meta);
+  }
+
+  async sendStartFile(fileID) {
+    await this._send(headers.file, fileID);
+  }
+
+  async sendFileChunk(chunk) {
+    await this._send(headers.chunk, chunk);
+  }
+
+  async sendFileFinish() {
+    await this._send(headers.finish);
+  }
+
+  async sendTransferFinish() {
+    await this._send(headers.finishTransfer);
+  }
+
+  async _send(header, payload) {
     const data = MessageParser.makeMessage(header, payload);
 
     return new Promise((resolve, reject) => {

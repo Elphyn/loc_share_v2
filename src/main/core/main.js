@@ -8,7 +8,7 @@ import InstanceDiscoveryService from "../networking/Services.js";
 import MessageParser from "../transfers/MessageParser.js";
 
 export let win;
-export let instanceDiscoveryService;
+export let network;
 export let messageParser;
 
 let ipcManager;
@@ -48,14 +48,14 @@ app.whenReady().then(() => {
 
 ipcMain.once("renderer-ready", async () => {
   messageParser = new MessageParser();
-  instanceDiscoveryService = new InstanceDiscoveryService();
-  controller = new Controller(instanceDiscoveryService);
+  network = new InstanceDiscoveryService();
+  controller = new Controller(network);
   ipcManager = new IPCManager();
 });
 
 app.on("before-quit", async (event) => {
   console.log("[ELECTRON] Running cleanup before exit");
   event.preventDefault();
-  await instanceDiscoveryService.cleanup();
+  await network.cleanup();
   app.exit(0);
 });

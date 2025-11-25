@@ -1,7 +1,8 @@
 import EventEmitter from "events";
 import { headers } from "./headers.js";
 import { config } from "../core/config.js";
-import { createChannelWriter } from "./Writing.js";
+import { createChannelWriter, ChannelReadable } from "./Writing.js";
+import path from "node:path";
 import { createReadStream, createWriteStream } from "fs";
 
 export class FileStream extends EventEmitter {
@@ -25,15 +26,25 @@ export class FileStream extends EventEmitter {
         await new Promise((resolve, reject) => {
           fileChunks
             .pipe(writeStream)
+            .on("progress-change", (bytesWritten) => {
+              console.log("[DEBUG] Emitter progres change on writing");
+              instance.emit("progress-change", {
+                fileID,
+                bytesSent: bytesWritten,
+              });
+            })
             .on("finish", resolve)
             .on("error", reject);
         });
       };
 
       try {
+        instance.emit("transfer-start");
+        console.log("[DEBUG] Emitted transfer start in static receive");
         await new Promise((resolve, reject) => {
           const listener = (fileID) => {
             handleFile(fileID).catch((err) => {
+              console.log("[DEBUG] Error in handleFile: ", err);
               channel.stopOnError(err);
             });
           };
@@ -41,11 +52,14 @@ export class FileStream extends EventEmitter {
           channel.on("transfer-file-start", listener);
 
           channel.once("transfer-finished", () => {
+            console.log("[DEBUG] Transfer finished");
+            instance.emit("transfer-finished");
             channel.off("transfer-file-start", listener);
             resolve();
           });
 
           channel.once("error", (err) => {
+            console.log("[DEBUG] Error in channel");
             channel.off("transfer-file-start", listener);
             reject(err);
           });

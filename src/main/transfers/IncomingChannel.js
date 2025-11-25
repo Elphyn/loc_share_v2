@@ -34,7 +34,6 @@ export default class IncomingChannel extends EventEmitter {
   }
 
   handleMessage(message) {
-    console.log("[DEBUG] Message Received: ", message);
     switch (message.type) {
       case headers.startTransfer:
         this.handleTranferRequest(message);
@@ -49,7 +48,7 @@ export default class IncomingChannel extends EventEmitter {
         this.emit("file-finished");
         break;
       case headers.finishTransfer:
-        this.emit("tranfer-finished");
+        this.emit("transfer-finished");
         break;
       default:
         console.log("[DEBUG] Wrong header: ", message);
@@ -62,7 +61,6 @@ export default class IncomingChannel extends EventEmitter {
     // beccause that's what's user sees, not socketId
     // this.bonjourId = message.payload.toString();
     const tranferInfo = JSON.parse(message.payload);
-    console.log("[DEBUG] Received on start transfer: ", tranferInfo);
     this.emit("transfer-request", tranferInfo);
   }
 

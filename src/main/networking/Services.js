@@ -22,11 +22,11 @@ export default class InstanceDiscoveryService extends EventEmitter {
     return this.discoveryManager.getLocalInstanceId();
   }
 
-  connect(id, connector) {
+  async connect(id, connector) {
     if (!this.nearbyDevices.has(id))
       throw new Error("[CONNECTION FAILURE] No such id in nearbyDevices");
     const { ip, port } = this.getConnectionInfo(id);
-    const channel = connector.connect(ip, port);
+    const channel = await connector.connect(ip, port);
     return channel;
   }
 

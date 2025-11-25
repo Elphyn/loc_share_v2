@@ -1,9 +1,5 @@
 import { TcpConnector } from "../networking/Connectors.js";
 import { ipcBus } from "../core/events.js";
-import { ChannelReadable } from "./Writing.js";
-import { createWriteStream } from "node:fs";
-import path from "node:path";
-import { config } from "../core/config.js";
 import { FileStream } from "./FileStream.js";
 import "../utils/eventEmitterExtension.js";
 
@@ -23,36 +19,6 @@ export default class Controller {
     this.network.on("transfer-request", ({ transfer, channel }) => {
       this.createIncomingTranfer(transfer, channel);
     });
-  }
-
-  // async createIncomingTranfer(transfer, channel) {
-  //   const transferID = crypto.randomUUID();
-  //
-  //   ipcBus.emit("new-transfer", { id: transferID, transfer });
-  //
-  //   const handleFile = async (fileID) => {
-  //     const fileChunks = new ChannelReadable(channel);
-  //
-  //     const saveFolder = config.savePath;
-  //
-  //     // TODO: need to check whether the file already exists, so as to not override it but create a second one
-  //     const writeStream = createWriteStream(
-  //       path.join(config.savePath, transfer.files[fileID].name),
-  //     );
-  //
-  //     await new Promise((resolve, reject) => {
-  //       fileChunks.pipe(writeStream).on("finish", resolve).on("error", reject);
-  //     });
-  //
-  //     console.log("[DEBUG] Finished writing a file");
-  //   };
-  //
-  //   channel.on("transfer-file-start", handleFile);
-  // }
-
-  createIncomingTranfer(meta, channel) {
-    const transferID = this.registerTransfer("incoming", meta.from, meta.files);
-    const transfer = FileStream.receive(meta, channel);
   }
 
   // assinging id's to files, important to reference which file we're sending
@@ -91,7 +57,10 @@ export default class Controller {
 
   transferListerns(transferID) {
     return {
-      "transfer-start": () => ipcBus.emit("transfer-start", transferID),
+      "transfer-start": () => {
+        console.log("[DEBUG] Controller caught transfer-start event");
+        ipcBus.emit("transfer-start", transferID);
+      },
       "progress-change": ({ fileID, bytesSent }) =>
         ipcBus.emit("file-progress-update", {
           transferID,
@@ -133,5 +102,21 @@ export default class Controller {
     await transfer.ready;
 
     this.offManyListeners(transfer, this.transferListerns(transferID));
+  }
+
+  async createIncomingTranfer(meta, channel) {
+    const transferID = this.registerTransfer("incoming", meta.from, meta.files);
+    const transfer = FileStream.receive(meta, channel);
+
+    ipcBus.emit("transfer-start", transferID);
+
+    console.log("[DEBUG] Attaching event listeners on receiving");
+    this.addManyListeners(transfer, this.transferListerns(transferID));
+
+    await transfer.ready;
+    console.log("[DEBUG] Awaited transfer.ready");
+
+    this.offManyListeners(transfer, this.transferListerns(transferID));
+    console.log("[DEBUG] Detaching event listeners on receiving");
   }
 }

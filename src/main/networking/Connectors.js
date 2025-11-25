@@ -27,7 +27,7 @@ export class TcpConnector {
         const channel = new TcpFileChannel(socket);
         resolve(channel);
       });
-
+      // TODO: should grab error here
       socket.on("error", () => {
         reject("Connection failed");
       });
