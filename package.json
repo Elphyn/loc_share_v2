@@ -13,6 +13,24 @@
     "build": "npm run build:web && electron-builder",
     "build:linux": "npm run build:web && electron-builder --linux"
   },
+
+  "build": {
+    "appId": "com.vlad.locshare",
+    "productName": "LocShare",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/main/**/*",
+      "src/web/dist/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Network"
+    }
+  },
   "devDependencies": {
     "electron": "^38.2.2",
     "electron-builder": "^26.0.12"
