@@ -6,11 +6,13 @@
   "author": "",
   "type": "module",
   "main": "./src/main/core/main.js",
+
   "scripts": {
     "start": "electron .",
     "dev": "NODE_ENV=development electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:web": "cd src/web && npm run built"
   },
+
   "devDependencies": {
     "electron": "^38.2.2"
   },
