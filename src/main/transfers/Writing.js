@@ -26,20 +26,26 @@ export class ChannelReadable extends Readable {
 
     this.bytesWritten = 0;
 
-    channel.on("file-chunk", (chunk) => {
-      console.log("[IMPORTANT] In file-chunk event in ChannelReadable");
-      const ok = this.push(chunk);
-      this.bytesWritten += chunk.length;
-      this.emit("progress-change", this.bytesWritten);
-      // not ok - no more room in buffer, need to slow down
-      if (!ok) {
-        channel.pause();
-      }
-    });
+    this._onChunk = this.handleChunk.bind(this);
+    channel.on("file-chunk", this._onChunk);
 
     channel.on("file-finished", () => {
+      // cleanup
+      channel.off("file-chunk", this._onChunk);
+      // no more chunk can be pushed in
       this.push(null);
     });
+  }
+
+  handleChunk(chunk) {
+    console.log("[IMPORTANT] In file-chunk event in ChannelReadable");
+    const ok = this.push(chunk);
+    this.bytesWritten += chunk.length;
+    this.emit("progress-change", this.bytesWritten);
+    // not ok - no more room in buffer, need to slow down
+    if (!ok) {
+      this.channel.pause();
+    }
   }
 
   _read() {
