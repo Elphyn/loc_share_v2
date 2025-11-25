@@ -1,4 +1,8 @@
 import Transfer from "./Transfer.js";
+import { config } from "../core/config.js";
+import { ChannelReadable } from "./Writing.js";
+import { createWriteStream } from "original-fs";
+import path from "node:path";
 
 export default class IncomingTransfer extends Transfer {
   constructor(channel, meta, transferID) {
@@ -7,20 +11,45 @@ export default class IncomingTransfer extends Transfer {
     this.setup();
   }
 
-  foo() {}
+  async handeFile(fileID) {
+    const fileChunks = new ChannelReadable(this.channel);
 
-  async receive() {
-    this.notifyTransferStart();
+    // TODO: need to check whether the file already exists, so as to not override it but create a second one
+    const writeStream = createWriteStream(
+      path.join(config.savePath, this.files[fileID].name),
+    );
 
-    this.notifyTransferFinished();
+    await new Promise((resolve, reject) => {
+      fileChunks.on("progress-change", (bytesWritten) => {
+        this.notifyFileProgress(fileID, bytesWritten);
+      });
+
+      fileChunks.pipe(writeStream).on("finish", resolve).on("error", reject);
+    });
+  }
+
+  attachListeners() {
+    this.channel.on("transfer-file-start", (fileID) => {
+      try {
+        this.handeFile(fileID);
+      } catch (err) {
+        console.log("[ERROR] on handling file: ", err);
+        this.channel.stopOnError(err);
+        this.notifyTransferFailed();
+      }
+    });
+
+    this.channel.once("transfer-finished", () => {
+      this.notifyTransferFinished();
+    });
   }
 
   setup() {
-    try {
-      this.receive();
-    } catch (err) {
-      this.notifyTransferFailed();
-    }
+    this.registerTransfer("incoming");
+
+    this.attachListeners();
+
+    this.notifyTransferStart();
   }
 
   static create(channel, meta) {

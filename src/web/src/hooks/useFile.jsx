@@ -53,11 +53,11 @@ export function useFile() {
     );
 
     const unsubOnFileProgress = window.electronAPI.onFileProgress(
-      ({ transferID, fileID, bytesSent }) => {
+      ({ transferID, fileID, bytesProcessed }) => {
         setTransfers((prev) => {
           const { files, ...rest } = prev[transferID];
           const file = files[fileID];
-          const nextFile = { ...file, bytesSent };
+          const nextFile = { ...file, bytesProcessed };
           const nextFiles = { ...files, [fileID]: nextFile };
           return { ...prev, [transferID]: { ...rest, files: nextFiles } };
         });

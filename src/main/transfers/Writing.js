@@ -27,6 +27,7 @@ export class ChannelReadable extends Readable {
     this.bytesWritten = 0;
 
     channel.on("file-chunk", (chunk) => {
+      console.log("[IMPORTANT] In file-chunk event in ChannelReadable");
       const ok = this.push(chunk);
       this.bytesWritten += chunk.length;
       this.emit("progress-change", this.bytesWritten);

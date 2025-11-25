@@ -43,4 +43,11 @@ export class TcpFileChannel extends EventEmitter {
       }
     });
   }
+
+  async close() {
+    await new Promise((resolve) => {
+      this.socket.close(resolve);
+    });
+    console.log("[DEBUG] Socket is closed!");
+  }
 }

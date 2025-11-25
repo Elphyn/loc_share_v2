@@ -23,13 +23,13 @@ export default class OutgoingTransfer extends Transfer {
 
   static create(remoteID, files) {
     const transferID = crypto.randomUUID();
-    const preparedFiles = OutgoingTransfer.preparedFiles(files);
+    const preparedFiles = OutgoingTransfer.prepareFiles(files);
     const transfer = new OutgoingTransfer(remoteID, preparedFiles, transferID);
     return { transferID, transfer };
   }
 
   async _connect() {
-    await network.connect(this.remoteID, TcpConnector);
+    return await network.connect(this.remoteID, TcpConnector);
   }
 
   async sendMeta() {
@@ -37,24 +37,27 @@ export default class OutgoingTransfer extends Transfer {
       from: network.getAppInstanceID(),
       // removing local path of files we're sending
       // other instance doesn't need to know that
-      files: Object.entries(files).reduce((obj, [id, { path, ...rest }]) => {
-        obj[id] = rest;
-        return obj;
-      }, {}),
+      files: Object.entries(this.files).reduce(
+        (obj, [id, { path, ...rest }]) => {
+          obj[id] = rest;
+          return obj;
+        },
+        {},
+      ),
     });
 
     await this.channel.sendTransferStart(meta);
   }
 
   async sendFiles() {
-    for (const [fileID, file] of Object.entries(files)) {
-      await channel.send(headers.file, fileID);
+    for (const [fileID, file] of Object.entries(this.files)) {
+      await this.channel.sendStartFile(fileID);
 
       const stream = createReadStream(file.path, {
         highWaterMark: config.chunk_length,
       });
 
-      const channelWriter = createChannelWriter(channel);
+      const channelWriter = createChannelWriter(this.channel);
 
       await new Promise((resolve, reject) => {
         let bytesSent = 0;

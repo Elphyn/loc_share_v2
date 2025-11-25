@@ -3,6 +3,7 @@ import EventEmitter from "events";
 
 export default class Transfer extends EventEmitter {
   constructor(remoteID, transferID, files, channel = null) {
+    super();
     this.remoteID = remoteID;
     this.files = files;
     this.transferID = transferID;
@@ -10,10 +11,12 @@ export default class Transfer extends EventEmitter {
   }
 
   notifyTransferStart() {
+    console.log("[TRANSFER] Transfer started!");
     ipcBus.emit("transfer-start", this.transferID);
   }
 
   notifyTransferFinished() {
+    console.log("[TRANSFER] Transfer finished!");
     ipcBus.emit("transfer-finished", this.transferID);
 
     // Emitting specifically to controller
@@ -22,6 +25,7 @@ export default class Transfer extends EventEmitter {
   }
 
   notifyTransferFailed() {
+    console.log("[TRANSFER] Transfer failed!");
     ipcBus.emit("transfer-failed", this.transferID);
 
     // Same as 19, controller doesn't need to know if somethign has failed
@@ -29,11 +33,12 @@ export default class Transfer extends EventEmitter {
     this.emit("transfer-finished");
   }
 
-  notifyFileProgress(fileID, bytesSent) {
+  notifyFileProgress(fileID, bytesProcessed) {
+    console.log("[TRANSFER] Transfer file progress triggered!");
     ipcBus.emit("file-progress-update", {
       transferID: this.transferID,
       fileID,
-      bytesSent,
+      bytesProcessed,
     });
   }
 

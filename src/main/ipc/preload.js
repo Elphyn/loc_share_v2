@@ -43,8 +43,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
 
   onFileProgress: (callback) => {
-    const handler = (_event, { transferID, fileID, bytesSent }) =>
-      callback({ transferID, fileID, bytesSent });
+    const handler = (_event, { transferID, fileID, bytesProcessed }) =>
+      callback({ transferID, fileID, bytesProcessed });
     ipcRenderer.on("file-progress-update", handler);
     return () => {
       ipcRenderer.removeListener("file-progress-update", handler);

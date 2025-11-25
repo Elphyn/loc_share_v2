@@ -23,6 +23,7 @@ export default class InstanceDiscoveryService extends EventEmitter {
   }
 
   async connect(id, connector) {
+    console.log("[DEBUG NETWORK] connect triggered ");
     if (!this.nearbyDevices.has(id))
       throw new Error("[CONNECTION FAILURE] No such id in nearbyDevices");
     const { ip, port } = this.getConnectionInfo(id);
@@ -86,7 +87,7 @@ class ServerManager extends EventEmitter {
     this.server = net.createServer((socket) => {
       const channel = new IncomingChannel(socket);
       channel.on("transfer-request", (transferInfo) => {
-        this.emit("transfer-request", { transfer: transferInfo, channel });
+        this.emit("transfer-request", { meta: transferInfo, channel });
       });
     });
 
