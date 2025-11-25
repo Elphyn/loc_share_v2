@@ -16,8 +16,7 @@
   },
   "dependencies": {
     "bonjour": "^3.5.0",
-    "get-port": "^7.1.0",
-    "node-datachannel": "^0.30.0"
+    "get-port": "^7.1.0"
   },
   "repository": {
     "type": "git",
