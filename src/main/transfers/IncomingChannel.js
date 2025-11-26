@@ -34,6 +34,7 @@ export default class IncomingChannel extends EventEmitter {
   }
 
   handleMessage(message) {
+    console.log("[DEBUG] Received message: ", message);
     switch (message.type) {
       case headers.startTransfer:
         this.handleTranferRequest(message);

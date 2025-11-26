@@ -17,11 +17,11 @@ export default class Transfer extends EventEmitter {
 
   notifyTransferFinished() {
     console.log("[TRANSFER] Transfer finished!");
-    ipcBus.emit("transfer-finished", this.transferID);
+    ipcBus.emit("transfer-finish", this.transferID);
 
     // Emitting specifically to controller
     // Point: so it knows when to create/accept new transfer
-    this.emit("transfer-finished");
+    this.emit("transfer-finish");
   }
 
   notifyTransferFailed() {

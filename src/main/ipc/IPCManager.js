@@ -30,8 +30,8 @@ export default class IPCManager {
         });
       },
     );
-    ipcBus.on("transfer-finish", (transferId) => {
-      win.webContents.send("transfer-finish", transferId);
+    ipcBus.on("transfer-finish", (transferID) => {
+      win.webContents.send("transfer-finish", transferID);
     });
 
     ipcMain.on("peer-connection-request", (_event, id) => {

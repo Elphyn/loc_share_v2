@@ -89,6 +89,8 @@ export default class OutgoingTransfer extends Transfer {
     await this.sendMeta();
 
     await this.sendFiles();
+
+    await this.channel.sendTransferFinish();
   }
 
   async ready() {
