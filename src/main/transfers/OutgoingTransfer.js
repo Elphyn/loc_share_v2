@@ -100,6 +100,8 @@ export default class OutgoingTransfer extends Transfer {
     } catch (err) {
       console.log("[DEBUG] Transfer failed due to: ", err);
       this.notifyTransferFailed();
+    } finally {
+      this.channel.close();
     }
   }
 }
