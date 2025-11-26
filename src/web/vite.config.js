@@ -1,30 +1,28 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
-    }),
-  ],
-  define: {
-    global: "globalThis",
-  },
-  resolve: {
-    alias: {
-      stream: 'stream-browserify',
-      buffer: 'buffer',
-      process: 'process',
-      events: 'events',
-    }
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
-    }
+export default defineConfig(({ command }) => {
+  if (command === "serve") {
+    return {
+      // without this on build absolute paths ruin access to js,css files in ./assets
+      base: "./",
+      plugins: [
+        react({
+          babel: {
+            plugins: [["babel-plugin-react-compiler"]],
+          },
+        }),
+      ],
+    };
+  } else {
+    return {
+      plugins: [
+        react({
+          babel: {
+            plugins: [["babel-plugin-react-compiler"]],
+          },
+        }),
+      ],
+    };
   }
-})
+});

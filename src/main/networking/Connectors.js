@@ -28,7 +28,8 @@ export class TcpConnector {
         resolve(channel);
       });
       // TODO: should grab error here
-      socket.on("error", () => {
+      socket.on("error", (error) => {
+        console.log("[CONNECTION FAILURE] Connection failed due to: ", error);
         reject("Connection failed");
       });
     });

@@ -99,8 +99,8 @@ class ServerManager extends EventEmitter {
       // this could fail if both instances start at the same moment
       // probabl could just wrap in retry
       // due to port
-      this.server.listen(this.port, () => {
-        console.log("[SERVER] Server started");
+      this.server.listen(this.port, "0.0.0.0", () => {
+        console.log("[SERVER] Server started on port: ", this.port);
         resolve();
       });
     });

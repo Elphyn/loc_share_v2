@@ -24,6 +24,7 @@ const createWindow = () => {
     resizable: true,
     maximizable: false,
     webPreferences: {
+      webSecurity: false,
       preload: path.join(__dirname, "../ipc/preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
@@ -36,7 +37,10 @@ const createWindow = () => {
     win.loadURL("http://localhost:5173/");
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, "web/dist/index.html"));
+    const rendererPath = path.join(__dirname, "../../web/dist/index.html");
+    console.log("[DEBUG] looking for file with this path: ", rendererPath);
+    win.loadFile(rendererPath);
+    win.webContents.openDevTools();
   }
 
   win.removeMenu();

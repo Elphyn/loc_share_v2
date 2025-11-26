@@ -1,6 +1,8 @@
 node_modules/
 ./src/web/node_modules/
+src/web/dist/
 dist/
+release/
 out/
 build/
 *.log
