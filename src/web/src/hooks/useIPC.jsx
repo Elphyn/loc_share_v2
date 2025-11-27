@@ -10,9 +10,12 @@ export function useIPC() {
       setIdToName((prev) => ({ ...prev, [device.id]: device.name }));
       setDevices((prev) => [...prev, device]);
     });
-    const unsubNearbyDeviceOff = window.electronAPI.nearbyDeviceOff((id) => {
-      setDevices((prev) => prev.filter((device) => device.id !== id));
-    });
+    const unsubNearbyDeviceOff = window.electronAPI.nearbyDeviceOff(
+      (remoteID) => {
+        setDevices((prev) => prev.filter((id) => id !== remoteID));
+        setDevices((prev) => prev.filter((device) => device.id !== remoteID));
+      },
+    );
 
     const unsubOnNameGenerated = window.electronAPI.onNameGenerated((name) => {
       setInstanceName(name);
