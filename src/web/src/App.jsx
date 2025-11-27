@@ -7,13 +7,13 @@ import { useIPCContext } from "./contexts/useIPCContext.jsx";
 function App() {
   const { instanceName } = useIPCContext();
   return (
-    <>
+    <div className="bg-mint-500 w-full h-full">
       <h1>Name: {instanceName}</h1>
       <Devices />
       <DropZone />
       <FileList />
       <Transfers />
-    </>
+    </div>
   );
 }
 
