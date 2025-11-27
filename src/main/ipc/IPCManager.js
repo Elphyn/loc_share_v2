@@ -8,6 +8,10 @@ export default class IPCManager {
   }
 
   setup() {
+    ipcBus.on("instance-name-generated", (name) => {
+      console.log("[DEBUG] IPC sending name: ", name);
+      win.webContents.send("instance-name-generated", name);
+    });
     ipcBus.on("nearby-device-found", (device) => {
       win.webContents.send("nearby-device-found", device);
     });

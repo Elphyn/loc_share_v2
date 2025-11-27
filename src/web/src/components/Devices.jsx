@@ -14,7 +14,7 @@ export default function Devices() {
           };
           return (
             <li className="border-solid border-black m-5 flex justify-between">
-              <h1>{device.id}</h1>
+              <h1>{device.name}</h1>
               <button onClick={handleClick}>Send</button>
             </li>
           );

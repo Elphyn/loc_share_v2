@@ -1,10 +1,79 @@
-import { createReadStream } from "fs";
-import { Transfer } from "./Transfer.js";
-import { headers } from "./headers.js";
+function generateName() {
+  const adj = [
+    "Fierce",
 
-const stream = createReadStream("/home/vlad/Pictures/mountain_black.jpg");
+    "Creamy",
 
-stream.on("data", (data) => {
-  const message = MessageParser.makeMessage(headers.chunk, data);
-  console.log("Message: ", message);
-});
+    "Tiny",
+
+    "Mighty",
+
+    "Fluffy",
+
+    "Spicy",
+
+    "Silent",
+
+    "Jolly",
+
+    "Sneaky",
+
+    "Bright",
+
+    "Golden",
+
+    "Rapid",
+
+    "Cozy",
+
+    "Witty",
+
+    "Happy",
+  ];
+
+  const nouns = [
+    "Blueberry",
+
+    "Strawberry",
+
+    "Tiger",
+
+    "Panda",
+
+    "Rocket",
+
+    "Cinnamon",
+
+    "Maple",
+
+    "Fox",
+
+    "Dolphin",
+
+    "Marshmallow",
+
+    "Comet",
+
+    "Pineapple",
+
+    "Banana",
+
+    "Cloud",
+
+    "Sparrow",
+  ];
+
+  const getRandomInt = (max) => {
+    return Math.floor(Math.random() * max);
+  };
+
+  return "".concat(
+    adj[getRandomInt(adj.length)],
+    " ",
+    nouns[getRandomInt(nouns.length)],
+  );
+}
+
+const name = generateName();
+
+console.log("[DEBUG] Name: ", name);

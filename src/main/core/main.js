@@ -4,12 +4,11 @@ import { fileURLToPath } from "node:url";
 
 import IPCManager from "../ipc/IPCManager.js";
 import Controller from "../transfers/Controller.js";
-import InstanceDiscoveryService from "../networking/Services.js";
-import MessageParser from "../transfers/MessageParser.js";
+import NetworkManager from "../networking/Network.js";
+import { config, generateName } from "./config.js";
 
 export let win;
 export let network;
-export let messageParser;
 
 let ipcManager;
 let controller;
@@ -37,10 +36,7 @@ const createWindow = () => {
     win.loadURL("http://localhost:5173/");
     win.webContents.openDevTools();
   } else {
-    const rendererPath = path.join(__dirname, "../../web/dist/index.html");
-    console.log("[DEBUG] looking for file with this path: ", rendererPath);
-    win.loadFile(rendererPath);
-    win.webContents.openDevTools();
+    win.loadFile(path.join(__dirname, "../../web/dist/index.html"));
   }
 
   win.removeMenu();
@@ -51,10 +47,11 @@ app.whenReady().then(() => {
 });
 
 ipcMain.once("renderer-ready", async () => {
-  messageParser = new MessageParser();
-  network = new InstanceDiscoveryService();
-  controller = new Controller(network);
   ipcManager = new IPCManager();
+  config.instanceName = generateName();
+
+  network = new NetworkManager();
+  controller = new Controller(network);
 });
 
 app.on("before-quit", async (event) => {

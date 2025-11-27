@@ -4,10 +4,9 @@ import getPort, { portNumbers } from "get-port";
 import bonjour from "bonjour";
 import { ipcBus } from "../core/events.js";
 import IncomingChannel from "../transfers/IncomingChannel.js";
+import { config } from "../core/config.js";
 
-// TODO: Should probably rename an this to network
-// Also Should rename the file itself
-export default class InstanceDiscoveryService extends EventEmitter {
+export default class NetworkManager extends EventEmitter {
   constructor() {
     super();
     this.serverManager = new ServerManager();
@@ -66,7 +65,10 @@ export default class InstanceDiscoveryService extends EventEmitter {
   onDiscoveredInstanceUp(instance) {
     console.log("[Service] Found nearby device, id: ", instance.txt.id);
     this.nearbyDevices.set(instance.txt.id, instance);
-    ipcBus.emit("nearby-device-found", { id: instance.txt.id });
+    ipcBus.emit("nearby-device-found", {
+      id: instance.txt.id,
+      name: instance.txt.name,
+    });
   }
 
   onDiscoveredInstanceDown(instance) {
@@ -91,19 +93,23 @@ class ServerManager extends EventEmitter {
       });
     });
 
-    // TODO: starting server could fail due to this line
-    // so wrap in protection and retry
-    this.port = await getPort({ port: portNumbers(3000, 3100) });
+    while (true) {
+      this.port = await getPort({ port: portNumbers(3000, 3100) });
 
-    await new Promise((resolve) => {
-      // this could fail if both instances start at the same moment
-      // probabl could just wrap in retry
-      // due to port
-      this.server.listen(this.port, "0.0.0.0", () => {
-        console.log("[SERVER] Server started on port: ", this.port);
-        resolve();
+      const success = await new Promise((resolve) => {
+        // this could fail due to port being used already
+        try {
+          this.server.listen(this.port, "0.0.0.0", () => {
+            console.log("[SERVER] Server started on port: ", this.port);
+            resolve(true);
+          });
+        } catch (err) {
+          console.log("[DEBUG] failed to start on port ", this.port);
+          resolve(false);
+        }
       });
-    });
+      if (success) break;
+    }
 
     return this.port;
   }
@@ -158,6 +164,7 @@ class DiscoveryManager extends EventEmitter {
       port: port,
       txt: {
         id: this.localInstanceId,
+        name: config.instanceName,
       },
     });
   }

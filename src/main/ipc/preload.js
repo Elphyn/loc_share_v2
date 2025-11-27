@@ -2,6 +2,15 @@ const { contextBridge, ipcRenderer, webUtils } = require("electron");
 contextBridge.exposeInMainWorld("electronAPI", {
   sendRendererReady: () => ipcRenderer.send("renderer-ready"),
 
+  onNameGenerated: (callback) => {
+    const handler = (_event, name) => callback(name);
+    ipcRenderer.on("instance-name-generated", handler);
+
+    return () => {
+      ipcRenderer.removeListener("instance-name-generated", handler);
+    };
+  },
+
   nearbyDeviceOn: (callback) => {
     const handler = (_event, device) => callback(device);
     ipcRenderer.on("nearby-device-found", handler);
