@@ -3,7 +3,7 @@ import { useIPCContext } from "../contexts/useIPCContext";
 export default function TransferCard({ transfer }) {
   const { getNameByID } = useIPCContext();
   return (
-    <li className="bg-border-black">
+    <li className="border-2 border-b-red-900 ">
       <div></div>
       <div>
         {transfer.type === "incoming"

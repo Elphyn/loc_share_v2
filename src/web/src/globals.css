@@ -1,22 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* :root { */
-/*   --font-size: 16px; */
-/*   --background: #24273a; */
-/*   --foreground: #cdd6f4; */
-/*   --card: #313244; */
-/*   --border: #45475a; */
-/* } */
-/**/
-/* html { */
-/*   font-size: var(--font-size); */
-/* } */
-/**/
-/* body { */
-/*   background-color: var(--background); */
-/*   color: var(--foreground); */
-/*   border: var(--border); */
-/* } */
-/**/
