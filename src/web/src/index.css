@@ -7,9 +7,11 @@ html, body, #root {
 
 
 @theme {
-  --color-bg-base: var(--color-zinc-900);
-  --color-bg-card: var(--color-zinc-800);
+  --color-bg-base: var(--color-zinc-950);
+  --color-bg-card: var(--color-zinc-900);
+  --color-bg-card-muted: var(--color-zink-800);
   --color-text-base: var(--color-zinc-100);
-  --color-border-base: var(--color-zinc-400);
+  --color-text-muted: var(--color-zinc-400);
+  --color-border-base: var(--color-zinc-800);
 }
 

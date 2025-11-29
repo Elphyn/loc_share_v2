@@ -1,18 +1,22 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useFileContext } from "../contexts/useFileContext";
 
 export default function DropZone() {
+  const fileInputRef = useRef(null);
   const { addFile } = useFileContext();
 
-  const handleDrop = useCallback(
-    (e) => {
-      e.preventDefault();
-      for (const file of e.dataTransfer.files) {
-        addFile(file);
-      }
-    },
-    [addFile],
-  );
+  const handleDrop = (e) => {
+    e.preventDefault();
+    for (const file of e.dataTransfer.files) {
+      addFile(file);
+    }
+  };
+
+  const handleFiles = (files) => {
+    for (const file of files) {
+      addFile(file);
+    }
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -22,9 +26,17 @@ export default function DropZone() {
     <div
       onDragOver={handleDrag}
       onDrop={handleDrop}
-      className="border-2 border-dashed text-center h-32 m-5"
+      onClick={() => fileInputRef.current.click()}
+      className="border-2 border-dashed border-border-base text-center h-32 my-5 bg-bg-card/30 rounded-xl"
     >
-      Drop File here
+      <p>Drop files here</p>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        multiple
+        onChange={(e) => handleFiles(e.target.files)}
+      />
     </div>
   );
 }

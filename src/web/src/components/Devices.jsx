@@ -7,7 +7,8 @@ export default function Devices() {
 
   return (
     <div>
-      <ul>
+      <h2 className="text-text-muted">NEARBY DEVICES</h2>
+      <ul className="bg-bg-card border border-border-base rounded-lg">
         {devices.map((device) => {
           const handleClick = () => {
             requestTransfer(device.id);
