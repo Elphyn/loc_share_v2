@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-
 export function useFile() {
   const [files, setFiles] = useState([]);
   const [transfers, setTransfers] = useState({});
@@ -57,7 +56,11 @@ export function useFile() {
         setTransfers((prev) => {
           const { files, ...rest } = prev[transferID];
           const file = files[fileID];
-          const nextFile = { ...file, bytesProcessed };
+          const nextFile = {
+            ...file,
+            bytesProcessed,
+            progress: Math.round((file.bytesProcessed / file.size) * 100),
+          };
           const nextFiles = { ...files, [fileID]: nextFile };
           return { ...prev, [transferID]: { ...rest, files: nextFiles } };
         });

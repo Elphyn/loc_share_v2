@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export default function FileContainer({ file }) {
   const round = (bytes) => {
     const units = ["B", "KB", "MB", "GB", "TB"];
@@ -9,8 +11,6 @@ export default function FileContainer({ file }) {
       current = current / 1024;
       conversionCount += 1;
     }
-
-    console.log("[DEBUG] Converted to: ", current.toFixed(2));
 
     return {
       rounded: current.toFixed(2),
@@ -35,6 +35,7 @@ export default function FileContainer({ file }) {
         {unit} / {roundedFull}
         {unitFull}
       </h2>
+      <h2>{file.progress ? file.progress : 0}%</h2>
     </li>
   );
 }
