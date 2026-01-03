@@ -2,7 +2,7 @@
   "name": "loc_share_v2",
   "version": "0.0.1",
   "description": "Electron app to share files over local network using p2p",
-  "license": "ISC",
+  "license": "MIT",
   "author": "",
   "type": "module",
   "main": "./src/main/core/main.js",
