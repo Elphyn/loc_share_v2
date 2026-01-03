@@ -48,7 +48,7 @@ npm run build:linux
 - [ ] Transfer cancellation
 - [ ] Windows support
 - [ ] Network interruption recovery
-- [ ] Internet-based transfers with WebRTC
+- [ ] Internet-based transfers with WebRTC([node-datachannel](https://github.com/murat-dogan/node-datachannel)) 
 - [ ] Mobile app (React Native or Flutter)
 
 
