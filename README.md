@@ -48,7 +48,7 @@ npm run build:linux
 - [ ] Transfer cancellation
 - [ ] Windows support
 - [ ] Network interruption recovery
-- [ ] Web-based transfers with WRTC
+- [ ] Internet-based transfers with WRTC
 - [ ] Mobile app (React Native or Flutter)
 
 
