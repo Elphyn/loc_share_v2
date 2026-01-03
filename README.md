@@ -10,7 +10,7 @@ LocShare is a desktop app for direct peer-to-peer file transfers. No central ser
 
 ## Install from package
 
-Pre-built packages found on the
+Pre-built packages are found on the
 [Releases](https://github.com/Elphyn/loc_share_v2/releases) page.
 
 ## Build from source 
@@ -50,6 +50,11 @@ npm run build:linux
 - [ ] Network interruption recovery
 - [ ] Web-based transfers with WRTC
 - [ ] Mobile app (React Native or Flutter)
+
+
+## About
+
+Personal project inspired by AirDrop and [LocalSend](https://github.com/localsend/localsend).
 
 ## License
 
