@@ -8,6 +8,10 @@ LocShare is a desktop app for direct peer-to-peer file transfers. No central ser
 
 **Built with:** Electron, React, Node.js, TCP, Bonjour/mDNS
 
+## Status
+
+Available on Linux, with plans of adding Windows/Android support later
+
 ## Install from package
 
 Pre-built packages are found on the
