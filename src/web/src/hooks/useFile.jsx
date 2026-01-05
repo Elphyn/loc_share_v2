@@ -12,18 +12,6 @@ export function useFile() {
     [files],
   );
 
-  // const addFile = useCallback((file) => {
-  //   setFiles((prev) => [
-  //     ...prev,
-  //     {
-  //       name: file.name,
-  //       size: file.size,
-  //       type: file.type,
-  //       path: window.electronAPI.getFilePath(file),
-  //     },
-  //   ]);
-  // }, []);
-
   const addFile = useCallback((file) => {
     setFiles((prev) => {
       const fileID = crypto.randomUUID();
@@ -47,10 +35,6 @@ export function useFile() {
       return rest;
     });
   }, []);
-
-  useEffect(() => {
-    console.log("[DEBUG] Files changed: ", files);
-  }, [files]);
 
   useEffect(() => {
     const unsubOnNewTransfer = window.electronAPI.onNewTransfer(
