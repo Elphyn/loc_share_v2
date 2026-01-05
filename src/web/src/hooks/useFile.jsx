@@ -6,7 +6,7 @@ export function useFile() {
   // to: instanceId to which you wanna send files
   const requestTransfer = useCallback(
     (to) => {
-      window.electronAPI.transferRequest(to, files.values());
+      window.electronAPI.transferRequest(to, Object.values(files));
       setFiles({});
     },
     [files],
