@@ -1,27 +1,39 @@
 import { useState, useCallback, useEffect } from "react";
 export function useFile() {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState({});
   const [transfers, setTransfers] = useState({});
 
   // to: instanceId to which you wanna send files
   const requestTransfer = useCallback(
     (to) => {
-      window.electronAPI.transferRequest(to, files);
-      setFiles([]);
+      window.electronAPI.transferRequest(to, Object.values(files));
+      setFiles({});
     },
     [files],
   );
 
   const addFile = useCallback((file) => {
-    setFiles((prev) => [
-      ...prev,
-      {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        path: window.electronAPI.getFilePath(file),
-      },
-    ]);
+    setFiles((prev) => {
+      const fileID = crypto.randomUUID();
+      const next = {
+        ...prev,
+        [fileID]: {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          path: window.electronAPI.getFilePath(file),
+        },
+      };
+      return next;
+    });
+  }, []);
+
+  const removeFile = useCallback((fileID) => {
+    console.log("[DEBUG] removeFile called with: ", fileID);
+    setFiles((prev) => {
+      const { [fileID]: _, ...rest } = prev;
+      return rest;
+    });
   }, []);
 
   useEffect(() => {
@@ -75,5 +87,5 @@ export function useFile() {
     };
   }, []);
 
-  return { files, requestTransfer, addFile, transfers };
+  return { files, requestTransfer, addFile, removeFile, transfers };
 }
