@@ -6,6 +6,11 @@ html, body, #root {
 } 
 
 
+::-webkit-scrollbar {
+display: none;
+}
+
+
 @theme {
   --color-bg-base: var(--color-zinc-950);
   --color-bg-card: var(--color-zinc-900);
@@ -13,5 +18,9 @@ html, body, #root {
   --color-text-base: var(--color-zinc-100);
   --color-text-muted: var(--color-zinc-400);
   --color-border-base: var(--color-zinc-800);
+}
+
+@font-face {
+  font-family: monospace 
 }
 

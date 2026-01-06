@@ -27,9 +27,10 @@ export default function DropZone() {
       onDragOver={handleDrag}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current.click()}
-      className="border-2 border-dashed border-border-base text-center h-32 my-5 bg-bg-card/30 rounded-xl"
+      className="flex justify-center flex-col items-center border-2 border-dashed border-border-base text-center h-32 my-5 bg-bg-card/30"
     >
-      <p>Drop files here</p>
+      <p className="select-none text-text-muted">Drop files here</p>
+      <p className="text-text-muted">(or click here to add)</p>
       <input
         type="file"
         ref={fileInputRef}

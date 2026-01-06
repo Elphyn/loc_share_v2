@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export default function FileContainer({ file }) {
   const round = (bytes) => {
     const units = ["B", "KB", "MB", "GB", "TB"];
@@ -26,16 +24,21 @@ export default function FileContainer({ file }) {
 
   const { rounded, unit } = round(file.bytesProcessed || 0);
   const { rounded: roundedFull, unit: unitFull } = round(file.size);
+  // const blocks = Math.floor(file.progress / 2.5);
 
   return (
-    <li className="flex justify-between border rounded p-2 mb-2">
-      <h1>{file.name.truncate(15)}</h1>
-      <h2>
-        {rounded}
-        {unit} / {roundedFull}
-        {unitFull}
-      </h2>
-      <h2>{file.progress ? file.progress : 0}%</h2>
+    <li className="flex-col justify-between  p-2 mb-2">
+      <h1>{file.name.truncate(35)}</h1>
+      <div>
+        <div className="flex justify-between">
+          <h2>
+            {rounded}
+            {unit} / {roundedFull}
+            {unitFull}
+          </h2>
+          <div>{file.progress ? file.progress + "%" : null}</div>
+        </div>
+      </div>
     </li>
   );
 }

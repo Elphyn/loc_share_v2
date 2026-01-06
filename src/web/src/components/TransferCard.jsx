@@ -4,7 +4,7 @@ import FileContainer from "./FileContainer";
 export default function TransferCard({ transfer }) {
   const { getNameByID } = useIPCContext();
   return (
-    <li className="border border-border-base bg-bg-card rounded-lg p-2 my-2">
+    <li className="border border-border-base bg-bg-card p-2 my-2">
       <div className="flex justify-between">
         <div>
           {transfer.type === "incoming"
