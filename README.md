@@ -4,13 +4,13 @@ Fast, decentralized peer-to-peer file sharing application.
 
 ## What is this?
 
-LocShare is a desktop app for direct peer-to-peer file transfers. No central server, no cloud storage. Currently works over local networks with plans to add WebRTC support for internet-based transfers.
+LocShare is a cross-platform desktop app for direct peer-to-peer file transfers. No central server, no cloud storage. Currently works over local networks with plans to add WebRTC support for internet-based transfers.
 
 **Built with:** Electron, React, Node.js, TCP, Bonjour/mDNS
 
 ## Status
 
-Available on Linux, with plans of adding Windows/Android support later
+Available on Linux and Windows, with plans of adding Android support later
 
 ## Install from package
 
@@ -30,6 +30,9 @@ npm run dev
 
 # Build for linux
 npm run build:linux 
+
+# Build for windows
+npm run build:win
 ```
 
 ## Usage
