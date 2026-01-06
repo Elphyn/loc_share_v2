@@ -48,9 +48,9 @@ npm run build:linux
 
 ## Roadmap
 
-- [ ] Better file handling (remove added files, add directories)
+- [ ] Sending whole directories 
 - [ ] Transfer cancellation
-- [ ] Windows support
+- [x] Windows support
 - [ ] Network interruption recovery
 - [ ] Internet-based transfers with WebRTC(via [node-datachannel](https://github.com/murat-dogan/node-datachannel)) 
 - [ ] Mobile app (React Native or Flutter)
