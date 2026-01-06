@@ -86,11 +86,10 @@ export function generateName() {
 }
 
 function getDownloadsFolder() {
-  const home = os.homedir();
-
   switch (platform) {
     case "linux":
-      return path.join(home, "Downloads");
+    case "win32":
+      return path.join(os.homedir(), "Downloads");
     default:
       throw new Error(`[OS] Unsupported operating system: ${platform}`);
   }
