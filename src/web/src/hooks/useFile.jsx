@@ -29,7 +29,6 @@ export function useFile() {
   }, []);
 
   const removeFile = useCallback((fileID) => {
-    console.log("[DEBUG] removeFile called with: ", fileID);
     setFiles((prev) => {
       const { [fileID]: _, ...rest } = prev;
       return rest;
@@ -55,7 +54,6 @@ export function useFile() {
 
     const unsubOnTransferFinish = window.electronAPI.onTransferFinish(
       (transferID) => {
-        console.log("[DEBUG] Transfer finished");
         setTransfers((prev) => ({
           ...prev,
           [transferID]: { ...prev[transferID], state: "Finished" },
@@ -71,7 +69,7 @@ export function useFile() {
           const nextFile = {
             ...file,
             bytesProcessed,
-            progress: Math.round((file.bytesProcessed / file.size) * 100),
+            progress: Math.round((bytesProcessed / file.size) * 100),
           };
           const nextFiles = { ...files, [fileID]: nextFile };
           return { ...prev, [transferID]: { ...rest, files: nextFiles } };
