@@ -1,5 +1,4 @@
 # LocShare
-
 Fast, decentralized peer-to-peer file sharing application.
 
 ## What is this?
@@ -41,13 +40,6 @@ npm run build:win
 2. App should discover devices automatically 
 3. Drop files and click "Send" next to a device
 4. Done
-
-## Current Limitations
-
-- Only local transfers (no internet transfers yet)
-- Linux support only (no Windows or mobile support) 
-- Can't remove files after adding or add entire directories
-- Minimal UI (design still in progress)
 
 ## Roadmap
 
