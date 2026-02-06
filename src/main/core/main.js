@@ -20,8 +20,8 @@ const createWindow = () => {
   win = new BrowserWindow({
     width: 400,
     height: 600,
-    resizable: false,
-    maximizable: false,
+    resizable: true,
+    maximizable: true,
     webPreferences: {
       webSecurity: false,
       preload: path.join(__dirname, "../ipc/preload.js"),
@@ -34,7 +34,7 @@ const createWindow = () => {
 
   if (isDev) {
     win.loadURL("http://localhost:5173/");
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, "../../web/dist/index.html"));
   }
